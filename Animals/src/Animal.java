@@ -4,5 +4,5 @@
 public class Animal {
     private double x,y;
     private double age;
-  
+
 }
