@@ -1,27 +1,42 @@
 package gdk.land;
 
 public class Landscape {
-    /**
-     * Test launch
-     */
-    public static void main(String args[]) {
-        Landscape landscape = new Landscape();
-        landscape.generateNew();
-
-        for (int i = 1; i <= LAND_W; ++i) {
-            for (int j = 1; j <= LAND_D; ++j)
-                System.out.printf("% 06.2f ", landscape.HeightMap[i][j]);
-            System.out.print("\n");
-        }
-    }
-
-    final static int LAND_W = 32 + 1; // land width
-    final static int LAND_D = 32 + 1; // land depth
-
-    private double[][] HeightMap = new double[LAND_W + 1][LAND_D + 1];
+    private int LAND_W = 16 + 1; // land width
+    private int LAND_D = 16 + 1; // land depth
+    private int LAND_SCALE = 1; // land height scale
+    private double[][] HeightMap = new double[LAND_W + 1][LAND_D + 1]; // height map
 
     public Landscape() {
 
+    }
+
+    public int getWidth() {
+        return LAND_W;
+    }
+
+    public int getDepth() {
+        return LAND_D;
+    }
+
+    public void setWidth(int newWidth) {
+        LAND_W = newWidth;
+    }
+
+    public void setDepth(int newDepth) {
+        LAND_D = newDepth;
+    }
+
+    public void setSize(int newWidth, int newDepth) {
+        setWidth(newWidth);
+        setDepth(newDepth);
+    }
+
+    public int getScale() {
+        return LAND_SCALE;
+    }
+
+    public void setScale(int newScale) {
+        LAND_SCALE = newScale;
     }
 
     public double getPointHeight(int x, int y) {
@@ -29,7 +44,51 @@ public class Landscape {
     }
 
     public void generateNew() {
-        diamondSquareGen(1, 1, LAND_W, LAND_D);
+        diamondSquareGen(1, 1, getWidth(), getDepth());
+    }
+
+    /**
+     * Accessory landscape functions
+     */
+    public void normalizeHeight() {
+        double minHeight = 0;
+        for (int i = 1; i <= getWidth(); ++i)
+            for (int j = 1; j <= getDepth(); ++j)
+                minHeight = Math.min(minHeight, HeightMap[i][j]);
+        for (int i = 1; i <= getWidth(); ++i)
+            for (int j = 1; j <= getDepth(); ++j)
+                HeightMap[i][j] -= minHeight;
+
+        double maxHeight = 0;
+        for (int i = 1; i <= getWidth(); ++i)
+            for (int j = 1; j <= getDepth(); ++j)
+                maxHeight = Math.max(maxHeight, HeightMap[i][j]);
+        for (int i = 1; i <= getWidth(); ++i)
+            for (int j = 1; j <= getDepth(); ++j)
+                HeightMap[i][j] /= maxHeight;
+    }
+
+    public void averageHeight() {
+        averageHeight(3) ;
+    }
+
+    public void averageHeight(int avgMagnitude) {
+        double[][] averageHeightMap = new double[LAND_W + 1][LAND_D + 1];
+        for (int i = 1; i <= getWidth(); ++i)
+            for (int j = 1; j <= getDepth(); ++j) {
+                averageHeightMap[i][j] += HeightMap[i][j];
+                if (i > 1)
+                    averageHeightMap[i - 1][j] += HeightMap[i][j];
+                if (j > 1)
+                    averageHeightMap[i][j - 1] += HeightMap[i][j];
+                if (i < getWidth())
+                    averageHeightMap[i + 1][j] += HeightMap[i][j];
+                if (j < getDepth())
+                    averageHeightMap[i][j + 1] += HeightMap[i][j];
+            }
+        for (int i = 1; i <= getWidth(); ++i)
+            for (int j = 1; j <= getDepth(); ++j)
+                HeightMap[i][j] = Math.max(0, HeightMap[i][j] - averageHeightMap[i][j] / (5 * avgMagnitude));
     }
 
     /**
@@ -41,7 +100,6 @@ public class Landscape {
     /**
      * Generates rectangular height map with corners in (xStart,yStart), (xFinish,yFinish)
      */
-
     private void diamondSquareGen(int xStart, int yStart, int xFinish, int yFinish) {
         HeightMap[xStart][yStart] = mRandom(-1, 1) * diamondHeightStep;
         HeightMap[xStart][yFinish] = mRandom(-1, 1) * diamondHeightStep;
@@ -50,6 +108,9 @@ public class Landscape {
         diamondSquareBlockGen(xStart, yStart, xFinish, yFinish);
     }
 
+    /**
+     * Generates squared height map with corners in (xStart,yStart), (xFinish,yFinish)
+     */
     private void diamondSquareBlockGen(int xStart, int yStart, int xFinish, int yFinish) {
         if (xStart >= xFinish - 1 && yStart >= yFinish - 1)
             return;
