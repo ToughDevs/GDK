@@ -27,18 +27,17 @@ Landscape
 	+getDepth(depth) : int
 	+setDepth() : void
 	+getScale(scale) : double
-	+setScale() : void
-	+getHeight(x, y) : double
+	+setHeightScale() : void
 	+generateNew() : void
 	+normalizeHeight() : void
 	+averageHeight() : void
 //Cell info getters
-	+getPointHeight() : double
-	+getTemperature() : double
-	+getFertility() : double
-	+getHumidity() : double
-	+getFoodAmount() : double
-	+getBiomType() : Biom
+	+getCellHeight(x, y) : double
+	+getCellTemperature(x, y) : double
+	+getCellFertility(x, y) : double
+	+getCellHumidity(x, y) : double
+	+getCellCrop(x, y) : double
+	+getCellBiomType(x, y) : Biom
 -------------------
 Animal
 	+coords : Point

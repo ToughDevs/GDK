@@ -1,18 +1,19 @@
 Done:
 
-Ocean //Океан
+Water //Океан
 
 Desert //Пустыня
 Jungle //Джунгли
-Oasis //Оазис
 
 Plains //Равнина
 Hills //Высокие холмы
 Forest //Леса
 
-Frozen plains //Ледяная равнина
-Frozen hills //Ледяные холмы
-Frozen lake //Ледяное озеро
+Frozen:
+
+Plains //Равнина
+Hills //Высокие холмы
+Water //Океан
 
 Inside:
 
