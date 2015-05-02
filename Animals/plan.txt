@@ -1,0 +1,46 @@
+EvoGame
+	-world : EvoWorld
+	-----------------
+	+newGame()
+	+start()
+	+pause()
+	+paint()
+-------------
+EvoWorld
+	-animals : EvoAnimal[]
+	-terrirory : EvoTerritory
+	-------------------------
+	+tick()
+	+generate()
+	+save()
+	+load()
+	
+-------------	
+EvoTerritory
+	cells : EvoTerrCell[][]
+	-------------------------------
+	generate()
+-------------
+EvoTerrCell
+	+tempreture : double
+	+fertility : double
+	+humidity : double
+	+height : double
+	+herbaceous : double
+	-biomType : int
+	--------------------------
+	-calculateBiomType()
+	-getBiomType()
+-------------------
+EvoAnimal
+	+coords : Point
+	+predator : bool
+	+health : double
+	+attack : double
+	+masking : double
+	+energy : double
+	+rationality : double
+	------------------
+	actWithCell(EvoTerrCell)
+	actWithAnimal(Animal)
+-------------	
