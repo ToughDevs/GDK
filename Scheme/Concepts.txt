@@ -1,0 +1,3 @@
+- Each animal occupy exactly one cell
+- Each cell may contain at most one animal
+- Animals live only on surface

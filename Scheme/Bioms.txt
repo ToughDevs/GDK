@@ -1,9 +1,6 @@
 Done:
 
 Ocean //Океан
-Lake //Озеро
-
-Beach //Пляж
 
 Desert //Пустыня
 Jungle //Джунгли
@@ -17,6 +14,10 @@ Frozen plains //Ледяная равнина
 Frozen hills //Ледяные холмы
 Frozen lake //Ледяное озеро
 
+Inside:
+
+Beach //Пляж
+Lake //Озеро
 
 TODO:
 

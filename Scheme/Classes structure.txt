@@ -34,10 +34,10 @@ Landscape
 	+averageHeight() : void
 //Cell info getters
 	+getPointHeight() : double
-	+getTemperature : double
-	+getFertility : double
-	+getHumidity : double
-	+getFoodAmount : double
+	+getTemperature() : double
+	+getFertility() : double
+	+getHumidity() : double
+	+getFoodAmount() : double
 	+getBiomType() : Biom
 -------------------
 Animal
