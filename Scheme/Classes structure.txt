@@ -30,20 +30,15 @@ Landscape
 	+setScale() : void
 	+getHeight(x, y) : double
 	+generateNew() : void
-	+getPointHeight() : double
 	+normalizeHeight() : void
 	+averageHeight() : void
--------------
-TerrCell
-	+tempreture : double
-	+fertility : double
-	+humidity : double
-	+height : double
-	+herbaceous : double
-	-biomType : int
-	--------------------------
-	-calculateBiomType()
-	-getBiomType()
+//Cell info getters
+	+getPointHeight() : double
+	+getTemperature : double
+	+getFertility : double
+	+getHumidity : double
+	+getFoodAmount : double
+	+getBiomType() : Biom
 -------------------
 Animal
 	+coords : Point

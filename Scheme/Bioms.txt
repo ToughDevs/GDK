@@ -1,0 +1,24 @@
+Done:
+
+Ocean //Океан
+Lake //Озеро
+
+Beach //Пляж
+
+Desert //Пустыня
+Jungle //Джунгли
+Oasis //Оазис
+
+Plains //Равнина
+Hills //Высокие холмы
+Forest //Леса
+
+Frozen plains //Ледяная равнина
+Frozen hills //Ледяные холмы
+Frozen lake //Ледяное озеро
+
+
+TODO:
+
+Taiga //Тайга
+Swampland //Болото
