@@ -17,9 +17,22 @@ World
 	
 -------------	
 Landscape
-	cells : TerrCell[][]
+	-LAND_W : int
+	-LAND_D : int
+	-LAND_SCALE : double
+	-HeightMap[][] : double
 	-------------------------------
-	generate()
+	+getWidth(width) : int 
+	+setWidth() : void
+	+getDepth(depth) : int
+	+setDepth() : void
+	+getScale(scale) : double
+	+setScale() : void
+	+getHeight(x, y) : double
+	+generateNew() : void
+	+getPointHeight() : double
+	+normalizeHeight() : void
+	+averageHeight() : void
 -------------
 TerrCell
 	+tempreture : double
