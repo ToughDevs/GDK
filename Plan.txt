@@ -1,0 +1,46 @@
+Game
+	-world : World
+	-----------------
+	+newGame()
+	+start()
+	+pause()
+	+paint()
+-------------
+World
+	-animals : Animal[]
+	-landscape : Landscape
+	-------------------------
+	+tick()
+	+generate()
+	+save()
+	+load()
+	
+-------------	
+Landscape
+	cells : TerrCell[][]
+	-------------------------------
+	generate()
+-------------
+TerrCell
+	+tempreture : double
+	+fertility : double
+	+humidity : double
+	+height : double
+	+herbaceous : double
+	-biomType : int
+	--------------------------
+	-calculateBiomType()
+	-getBiomType()
+-------------------
+Animal
+	+coords : Point
+	+predator : bool
+	+health : double
+	+attack : double
+	+masking : double
+	+energy : double
+	+rationality : double
+	------------------
+	actWithCell(TerrCell)
+	actWithAnimal(Animal)
+-------------	

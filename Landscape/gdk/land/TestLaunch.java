@@ -1,3 +1,5 @@
+package gdk.land;
+
 import gdk.land.Landscape ;
 
 public class TestLaunch {
