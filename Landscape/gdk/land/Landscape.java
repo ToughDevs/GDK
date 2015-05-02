@@ -1,8 +1,8 @@
 package gdk.land;
 
 public class Landscape {
-    private int LAND_W = 16 + 1; // land width
-    private int LAND_D = 16 + 1; // land depth
+    private int LAND_W = 16; // land width
+    private int LAND_D = 16; // land depth
     private int LAND_SCALE = 1; // land height scale
     private double[][] HeightMap = new double[LAND_W + 1][LAND_D + 1]; // height map
 
@@ -44,7 +44,7 @@ public class Landscape {
     }
 
     public void generateNew() {
-        diamondSquareGen(1, 1, getWidth(), getDepth());
+        diamondSquareGen(0, 0, getWidth(), getDepth());
     }
 
     /**
@@ -52,30 +52,30 @@ public class Landscape {
      */
     public void normalizeHeight() {
         double minHeight = 0;
-        for (int i = 1; i <= getWidth(); ++i)
-            for (int j = 1; j <= getDepth(); ++j)
+        for (int i = 0; i < getWidth(); ++i)
+            for (int j = 0; j < getDepth(); ++j)
                 minHeight = Math.min(minHeight, HeightMap[i][j]);
-        for (int i = 1; i <= getWidth(); ++i)
-            for (int j = 1; j <= getDepth(); ++j)
+        for (int i = 0; i < getWidth(); ++i)
+            for (int j = 0; j < getDepth(); ++j)
                 HeightMap[i][j] -= minHeight;
 
         double maxHeight = 0;
-        for (int i = 1; i <= getWidth(); ++i)
-            for (int j = 1; j <= getDepth(); ++j)
+        for (int i = 0; i < getWidth(); ++i)
+            for (int j = 0; j < getDepth(); ++j)
                 maxHeight = Math.max(maxHeight, HeightMap[i][j]);
-        for (int i = 1; i <= getWidth(); ++i)
-            for (int j = 1; j <= getDepth(); ++j)
+        for (int i = 0; i < getWidth(); ++i)
+            for (int j = 0; j < getDepth(); ++j)
                 HeightMap[i][j] /= maxHeight;
     }
 
     public void averageHeight() {
-        averageHeight(3) ;
+        averageHeight(3);
     }
 
     public void averageHeight(int avgMagnitude) {
         double[][] averageHeightMap = new double[LAND_W + 1][LAND_D + 1];
-        for (int i = 1; i <= getWidth(); ++i)
-            for (int j = 1; j <= getDepth(); ++j) {
+        for (int i = 0; i < getWidth(); ++i)
+            for (int j = 0; j < getDepth(); ++j) {
                 averageHeightMap[i][j] += HeightMap[i][j];
                 if (i > 1)
                     averageHeightMap[i - 1][j] += HeightMap[i][j];
@@ -86,8 +86,8 @@ public class Landscape {
                 if (j < getDepth())
                     averageHeightMap[i][j + 1] += HeightMap[i][j];
             }
-        for (int i = 1; i <= getWidth(); ++i)
-            for (int j = 1; j <= getDepth(); ++j)
+        for (int i = 0; i < getWidth(); ++i)
+            for (int j = 0; j < getDepth(); ++j)
                 HeightMap[i][j] = Math.max(0, HeightMap[i][j] - averageHeightMap[i][j] / (5 * avgMagnitude));
     }
 
@@ -102,9 +102,9 @@ public class Landscape {
      */
     private void diamondSquareGen(int xStart, int yStart, int xFinish, int yFinish) {
         HeightMap[xStart][yStart] = mRandom(-1, 1) * diamondHeightStep;
-        HeightMap[xStart][yFinish] = mRandom(-1, 1) * diamondHeightStep;
+        HeightMap[xStart][yFinish - 1] = mRandom(-1, 1) * diamondHeightStep;
         HeightMap[xFinish][yStart] = mRandom(-1, 1) * diamondHeightStep;
-        HeightMap[xFinish][yFinish] = mRandom(-1, 1) * diamondHeightStep;
+        HeightMap[xFinish][yFinish - 1] = mRandom(-1, 1) * diamondHeightStep;
         diamondSquareBlockGen(xStart, yStart, xFinish, yFinish);
     }
 
@@ -112,20 +112,20 @@ public class Landscape {
      * Generates squared height map with corners in (xStart,yStart), (xFinish,yFinish)
      */
     private void diamondSquareBlockGen(int xStart, int yStart, int xFinish, int yFinish) {
-        if (xStart >= xFinish - 1 && yStart >= yFinish - 1)
+        if (xFinish - xStart < 3 && yFinish - yStart < 3)
             return;
         int xMiddle = (xStart + xFinish) / 2, yMiddle = (yStart + yFinish) / 2;
 
-        HeightMap[xStart][yMiddle] = (HeightMap[xStart][yStart] + HeightMap[xStart][yFinish]) / 2;
-        HeightMap[xFinish][yMiddle] = (HeightMap[xFinish][yStart] + HeightMap[xFinish][yFinish]) / 2;
-        HeightMap[xMiddle][yStart] = (HeightMap[xStart][yStart] + HeightMap[xFinish][yStart]) / 2;
-        HeightMap[xMiddle][yFinish] = (HeightMap[xStart][yFinish] + HeightMap[xFinish][yFinish]) / 2;
+        HeightMap[xStart][yMiddle] = (HeightMap[xStart][yStart] + HeightMap[xStart][yFinish - 1]) / 2;
+        HeightMap[xFinish-1][yMiddle] = (HeightMap[xFinish-1][yStart] + HeightMap[xFinish-1][yFinish - 1]) / 2;
+        HeightMap[xMiddle][yStart] = (HeightMap[xStart][yStart] + HeightMap[xFinish-1][yStart]) / 2;
+        HeightMap[xMiddle][yFinish - 1] = (HeightMap[xStart][yFinish - 1] + HeightMap[xFinish-1][yFinish - 1]) / 2;
 
         HeightMap[xMiddle][yMiddle] = (
                 HeightMap[xStart][yMiddle]
-                        + HeightMap[xFinish][yMiddle]
+                        + HeightMap[xFinish - 1][yMiddle]
                         + HeightMap[xMiddle][yStart]
-                        + HeightMap[xMiddle][yFinish]) / 4
+                        + HeightMap[xMiddle][yFinish - 1]) / 4
                 + mRandom(-1, 1) * diamondHeightStep;
 
         diamondSquareBlockGen(xStart, yStart, xMiddle, yMiddle);
