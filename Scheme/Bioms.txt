@@ -1,26 +1,26 @@
 Done:
 
-Water //Океан
+ID: 0, Water // Океан
 
-Desert //Пустыня
-Jungle //Джунгли
+ID: 1, Desert // Пустыня
 
-Plains //Равнина
-Hills //Высокие холмы
-Forest //Леса
+ID: 2, Plains // Равнина
+ID: 3, Hills // Высокие холмы
+ID: 4, Forest // Леса
 
 Frozen:
 
-Plains //Равнина
-Hills //Высокие холмы
-Water //Океан
+ID: 0*, Water // Океан
+ID: 2*, Plains // Равнина
+ID: 3*, Hills // Высокие холмы
 
 Inside:
 
-Beach //Пляж
-Lake //Озеро
+Beach // Пляж
+Lake // Озеро
+Swampland // Болото
 
 TODO:
 
-Taiga //Тайга
-Swampland //Болото
+ID: 5, Jungle // Джунгли
+ID: 6, Taiga // Тайга
