@@ -13,11 +13,9 @@ import com.vova.land.Land;
 
 public class PlayState extends GameState{
 
-    ShapeRenderer sr;
     ModelBatch modelBatch;
     PerspectiveCamera camera;
     Land landscape;
-    Transformafor tr[][];
     float vertices[];
     short indices[];
     Mesh myMesh;
@@ -39,26 +37,21 @@ public class PlayState extends GameState{
         landscape.normalizeHeight();
         landscape.setScale(SCALE) ;
         camera = new PerspectiveCamera(5, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(0f, 10f, 10f);
-        camera.lookAt(0,0,0);
+        camera.position.set(0.5f, 5f, 10f);
+        camera.lookAt(0.5f, 0.5f, 0);
         camera.near = 1f;
         camera.far = 300f;
         camera.update();
         modelBatch = new ModelBatch();
-        sr = new ShapeRenderer();
-        sr.setProjectionMatrix(camera.combined);
-        //sr.rotate(1, 0, 0, -45);
-        tr = new Transformafor[landscape.getDepth()][landscape.getWidth()];
-        for (int i = 1; i <= landscape.getWidth(); i++) {
-            for (int j = 1; j <= landscape.getDepth(); j++) {
-                tr[i-1][j-1] = new Transformafor(i * MAP_SIZE, j * MAP_SIZE, (float) landscape.getPointHeight(i, j) * MAP_SIZE / 10);
-            }
-        }
 
-        vertices = new float[15];
+        vertices = new float[18];
+
+        vertices[4] = vertices[5] = vertices[10] = vertices[11] = vertices[16] = vertices[17] = 1f;
+
         indices = new short[] {0, 1, 2};
 
         myMesh = new Mesh( true, 3, 3,
+                new VertexAttribute( VertexAttributes.Usage.ColorPacked, 4, "a_color" ),
                 new VertexAttribute( VertexAttributes.Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE ),
                 new VertexAttribute( VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE+"0" ) );
 
@@ -69,48 +62,34 @@ public class PlayState extends GameState{
     @Override
     public void update(float dt) {
         handleInput();
-        for(int i = 0; i < tr.length; i++){
-            for(int j = 0; j < tr[0].length; j++)
-                tr[i][j].update();
-        }
         camera.update();
     }
 
     @Override
     public void draw() {
-        /*for (int i = 1; i < tr.length; i++) {
-            for (int j = 1; j < tr[0].length; j++) {
-                draw3DTriangle(sr, tr[i][j], tr[i - 1][j - 1], tr[i][j - 1]);
-                draw3DTriangle(sr, tr[i][j], tr[i - 1][j - 1], tr[i - 1][j]);
-            }
-        }*/
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
         for(int i = 2; i <= MAP_SIZE; i++){
             for(int j = 2; j <= MAP_SIZE; j++){
-                System.out.println(landscape.getPointHeight(i, j));
 
-                int x = 0;
+                System.out.println((float) landscape.getPointHeight(i, j) / SCALE * 255);
 
-                vertices[x++] = (float) i / MAP_SIZE;
-                vertices[x++] = (float) j / MAP_SIZE;
-                vertices[x++] = (float)landscape.getPointHeight(i, j) / SCALE;
-                vertices[x++] = 0f;
-                vertices[x++] = 0f;
+                vertices[0] = (float) i / MAP_SIZE;
+                vertices[1] = (float) j / MAP_SIZE;
+                vertices[2] = (float) landscape.getPointHeight(i, j) / SCALE;
+                vertices[3] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i, j) / SCALE * 255, 0f, 255f);
 
-                vertices[x++] = (float) (i - 1) / MAP_SIZE;
-                vertices[x++] = (float) (j - 1) / MAP_SIZE;
-                vertices[x++] = (float)landscape.getPointHeight(i - 1, j - 1) / SCALE;
-                vertices[x++] = 1f;
-                vertices[x++] = 0f;
+                vertices[6] = (float) (i - 1) / MAP_SIZE;
+                vertices[7] = (float) (j) / MAP_SIZE;
+                vertices[8] = (float) landscape.getPointHeight(i - 1, j) / SCALE;
+                vertices[9] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i - 1, j) / SCALE * 255, 0f, 255f);
 
-                vertices[x++] = (float) (i - 1) / MAP_SIZE;
-                vertices[x++] = (float) j / MAP_SIZE;
-                vertices[x++] = (float)landscape.getPointHeight(i - 1, j) / SCALE;
-                vertices[x++] = 1f;
-                vertices[x++] = 1f;
+                vertices[12] = (float) (i - 1) / MAP_SIZE;
+                vertices[13] = (float) (j - 1) / MAP_SIZE;
+                vertices[14] = (float) landscape.getPointHeight(i - 1, j - 1) / SCALE;
+                vertices[15] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i - 1, j - 1) / SCALE * 255, 0f, 255f);
 
                 myMesh.setVertices(vertices);
 
@@ -125,25 +104,21 @@ public class PlayState extends GameState{
                 modelBatch.render(instance);
                 modelBatch.end();
 
-                x = 0;
 
-                vertices[x++] = (float) i / MAP_SIZE;
-                vertices[x++] = (float) j / MAP_SIZE;
-                vertices[x++] = (float)landscape.getPointHeight(i, j) / SCALE;
-                vertices[x++] = 0f;
-                vertices[x++] = 0f;
+                vertices[0] = (float) i / MAP_SIZE;
+                vertices[1] = (float) j / MAP_SIZE;
+                vertices[2] = (float)landscape.getPointHeight(i, j) / SCALE;
+                vertices[3] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i, j) / SCALE * 255, 0f, 255f);
 
-                vertices[x++] = (float) (i - 1) / MAP_SIZE;
-                vertices[x++] = (float) (j - 1) / MAP_SIZE;
-                vertices[x++] = (float)landscape.getPointHeight(i - 1, j - 1) / SCALE;
-                vertices[x++] = 1f;
-                vertices[x++] = 0f;
+                vertices[6] = (float) (i - 1) / MAP_SIZE;
+                vertices[7] = (float) (j - 1) / MAP_SIZE;
+                vertices[8] = (float)landscape.getPointHeight(i - 1, j - 1) / SCALE;
+                vertices[9] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i - 1, j - 1) / SCALE * 255f, 0f, 255f);
 
-                vertices[x++] = (float) i / MAP_SIZE;
-                vertices[x++] = (float) (j - 1) / MAP_SIZE;
-                vertices[x++] = (float)landscape.getPointHeight(i, j - 1) / SCALE;
-                vertices[x++] = 1f;
-                vertices[x++] = 1f;
+                vertices[12] = (float) i / MAP_SIZE;
+                vertices[13] = (float) (j - 1) / MAP_SIZE;
+                vertices[14] = (float)landscape.getPointHeight(i, j - 1) / SCALE;
+                vertices[15] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i, j - 1) / SCALE * 255, 0f, 255f);
 
                 myMesh.setVertices(vertices);
 
@@ -156,6 +131,7 @@ public class PlayState extends GameState{
                 modelBatch.begin(camera);
                 modelBatch.render(instance);
                 modelBatch.end();
+
             }
         }
     }
