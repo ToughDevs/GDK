@@ -1,5 +1,7 @@
 package gdk.land;
 
+import java.awt.*;
+
 public class BiomePlains extends Biome {
     BiomePlains() {
         BIOME_ID = Biome.BIOME_PLAINS ;
@@ -17,5 +19,6 @@ public class BiomePlains extends Biome {
         this() ;
         SUBSTANCE_TYPE = biome.SUBSTANCE_TYPE ;
         COLD = biome.COLD ;
+        DEFAULT_COLOR = new CellColor(Color.GREEN);
     }
 }

@@ -58,7 +58,7 @@ public class Landscape {
     }
 
     public double getCellHeight(int x, int y) {
-        return CellMap[x][y].cellHeight;
+        return CellMap[x][y].cellHeight * LAND_SCALE ;
     }
 
     public void generateNewOld() {
@@ -132,8 +132,15 @@ public class Landscape {
         for (bi = 0; bi < BIOME_MAP_SIZE; ++bi)
             for (bj = 0; bj < BIOME_MAP_SIZE; ++bj) {
                 for (i = bi * BIOME_SIZE; i < (bi + 1) * BIOME_SIZE; ++i)
-                    for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j)
+                    for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j) {
                         CellMap[i][j].cellHeight *= mRandom(BiomeMap[bi][bj].scaleRateMin, BiomeMap[bi][bj].scaleRateMax);
+                        CellMap[i][j].cellColor = new CellColor(BiomeMap[bi][bj].DEFAULT_COLOR) ;
+                        CellMap[i][j].cellColor = CellMap[i][j].cellColor.add(
+                                new CellColor(
+                                        new Color((float)(Math.random()*0.2), (float)(Math.random()*0.2), (float)(Math.random()*0.2))
+                                )
+                        ) ;
+                    }
             }
 
         normalizeHeight(0, 0, LAND_W, LAND_D);

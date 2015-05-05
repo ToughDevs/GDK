@@ -7,6 +7,7 @@ public class Biome {
     public boolean COLD ;
 
     public int BIOME_ID ;
+    public CellColor DEFAULT_COLOR ;
 
     public double scaleRateMin ; // 0 for bottom of the river
     public double scaleRateMax ; // 1 for mountain peak
