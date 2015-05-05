@@ -18,13 +18,14 @@ public class Biome {
 
     public static final int BIOME_WATER = 0 ;
     public static final int BIOME_DESERT = 1 ;
-    public static final int BIOME_JUNGLE = 2 ;
-    public static final int BIOME_PLAINS = 3 ;
-    public static final int BIOME_HILLS = 4 ;
-    public static final int BIOME_FOREST = 5 ;
+    public static final int BIOME_PLAINS = 2 ;
+    public static final int BIOME_HILLS = 3 ;
+    public static final int BIOME_FOREST = 4 ;
+    public static final int BIOME_JUNGLE = 5 ;
+    public static final int BIOME_TAIGA= 6 ;
 
-    public static final int[] NORMAL_BIOME_LIST = new int[] {1, 2, 3, 4, 5} ;
-    public static final int[] FROZEN_BIOME_LIST = new int[] {3, 4} ;
+    public static final int[] NORMAL_BIOME_LIST = new int[] {BIOME_DESERT, BIOME_PLAINS, BIOME_HILLS, BIOME_FOREST} ;
+    public static final int[] FROZEN_BIOME_LIST = new int[] {BIOME_PLAINS, BIOME_HILLS} ;
 
     Biome() {
         SUBSTANCE_TYPE = SUBSTANCE_LAND ;

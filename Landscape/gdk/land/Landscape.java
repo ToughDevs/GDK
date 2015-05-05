@@ -1,25 +1,26 @@
 package gdk.land;
 
+import java.awt.*;
 import java.util.Random;
 
 public class Landscape {
-    private int BIOME_SIZE; // size of each biome
-    private int BIOME_MAP_SIZE; // size of biome map
+    public int BIOME_SIZE; // size of each biome
+    public int BIOME_MAP_SIZE; // size of biome map
     private int LAND_W; // land width
     private int LAND_D; // land depth
     private double LAND_SCALE; // land height scale
-    private Biome[][] BiomeMap; // biome map
+    public Biome[][] BiomeMap; // biome map
     private LandCell[][] CellMap; // height map
 
     public Landscape() {
-        BIOME_SIZE = 4;
+        BIOME_SIZE = 8;
         BIOME_MAP_SIZE = 4;
         LAND_W = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_D = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_SCALE = 1;
-        BiomeMap = new Biome[BIOME_SIZE][BIOME_SIZE] ;
-        for (int i = 0; i < BIOME_SIZE; ++i)
-            for (int j = 0; j < BIOME_SIZE; ++j)
+        BiomeMap = new Biome[BIOME_MAP_SIZE][BIOME_MAP_SIZE] ;
+        for (int i = 0; i < BIOME_MAP_SIZE; ++i)
+            for (int j = 0; j < BIOME_MAP_SIZE; ++j)
                 BiomeMap[i][j] = new Biome();
         CellMap = new LandCell[LAND_W][LAND_D];
         for (int i = 0; i < LAND_W; ++i)
@@ -69,72 +70,94 @@ public class Landscape {
     private double COLD_CELLS_PERCENT_MAX = 0.25 ;
 
     public void generateNew() {
-        int water_cells = (int)( WATER_CELLS_PERCENT * BIOME_MAP_SIZE * BIOME_MAP_SIZE ) ;
-        int cold_cells = (int)( mRandom(COLD_CELLS_PERCENT_MIN, COLD_CELLS_PERCENT_MAX) * BIOME_MAP_SIZE * BIOME_MAP_SIZE ) ;
+        int water_cells = (int) (WATER_CELLS_PERCENT * BIOME_MAP_SIZE * BIOME_MAP_SIZE);
+        int cold_cells = (int) (mRandom(COLD_CELLS_PERCENT_MIN, COLD_CELLS_PERCENT_MAX) * BIOME_MAP_SIZE * BIOME_MAP_SIZE);
 
-        Random random = new Random() ;
+        Random random = new Random();
 
-        int i, j, b, all[] ;
+        int i, j, b, all[];
 
-        all = new int[BIOME_SIZE*BIOME_SIZE] ;
-        for( i = 0 ; i < BIOME_SIZE * BIOME_SIZE ; ++i )
-            all[i] = i ;
-        for( i = BIOME_SIZE * BIOME_SIZE - 1 ; i >= 0 ; --i ) {
-            j = random.nextInt(i+1) ;
-            if( j != i ) {
-                all[j] ^= all[i] ;
-                all[i] ^= all[j] ;
-                all[j] ^= all[i] ;
+        all = new int[BIOME_MAP_SIZE * BIOME_MAP_SIZE];
+        for (i = 0; i < BIOME_MAP_SIZE * BIOME_MAP_SIZE; ++i)
+            all[i] = i;
+        for (i = BIOME_MAP_SIZE * BIOME_MAP_SIZE - 1; i >= 0; --i) {
+            j = random.nextInt(i + 1);
+            if (j != i) {
+                all[j] ^= all[i];
+                all[i] ^= all[j];
+                all[j] ^= all[i];
             }
         }
-        for( i = 0 ; i < water_cells ; ++i )
-            BiomeMap[all[i]/BIOME_SIZE][all[i]%BIOME_SIZE].SUBSTANCE_TYPE = Biome.SUBSTANCE_WATER ;
+        for (i = 0; i < water_cells; ++i)
+            BiomeMap[all[i] / BIOME_MAP_SIZE][all[i] % BIOME_MAP_SIZE].SUBSTANCE_TYPE = Biome.SUBSTANCE_WATER;
 
-        all = new int[BIOME_SIZE*BIOME_SIZE] ;
-        for( i = 0 ; i < BIOME_SIZE * BIOME_SIZE ; ++i )
-            all[i] = i ;
-        for( i = BIOME_SIZE * BIOME_SIZE - 1 ; i >= 0 ; --i ) {
-            j = random.nextInt(i+1) ;
-            if( j != i ) {
-                all[j] ^= all[i] ;
-                all[i] ^= all[j] ;
-                all[j] ^= all[i] ;
+        all = new int[BIOME_MAP_SIZE * BIOME_MAP_SIZE];
+        for (i = 0; i < BIOME_MAP_SIZE * BIOME_MAP_SIZE; ++i)
+            all[i] = i;
+        for (i = BIOME_MAP_SIZE * BIOME_MAP_SIZE - 1; i >= 0; --i) {
+            j = random.nextInt(i + 1);
+            if (j != i) {
+                all[j] ^= all[i];
+                all[i] ^= all[j];
+                all[j] ^= all[i];
             }
         }
-        for( i = 0 ; i < cold_cells ; ++i )
-            BiomeMap[all[i]/BIOME_SIZE][all[i]%BIOME_SIZE].COLD = true ;
+        for (i = 0; i < cold_cells; ++i)
+            BiomeMap[all[i] / BIOME_MAP_SIZE][all[i] % BIOME_MAP_SIZE].COLD = true;
 
-        for( i = 0 ; i < BIOME_SIZE ; ++i )
-            for( j = 0 ; j < BIOME_SIZE ; ++j )
-                if( BiomeMap[i][j].SUBSTANCE_TYPE == Biome.SUBSTANCE_LAND ) {
-                    if( !BiomeMap[i][j].COLD )
-                        b = Biome.NORMAL_BIOME_LIST[random.nextInt(Biome.NORMAL_BIOME_LIST.length)] ;
+        for (i = 0; i < BIOME_MAP_SIZE; ++i)
+            for (j = 0; j < BIOME_MAP_SIZE; ++j)
+                if (BiomeMap[i][j].SUBSTANCE_TYPE == Biome.SUBSTANCE_LAND) {
+                    if (!BiomeMap[i][j].COLD)
+                        b = Biome.NORMAL_BIOME_LIST[random.nextInt(Biome.NORMAL_BIOME_LIST.length)];
                     else
-                        b = Biome.FROZEN_BIOME_LIST[random.nextInt(Biome.FROZEN_BIOME_LIST.length)] ;
-                    if( b == 1 ) {
-
-                    }
+                        b = Biome.FROZEN_BIOME_LIST[random.nextInt(Biome.FROZEN_BIOME_LIST.length)];
+                    if (b == Biome.BIOME_DESERT)
+                        BiomeMap[i][j] = new BiomeDesert(BiomeMap[i][j]);
+                    else if (b == Biome.BIOME_PLAINS)
+                        BiomeMap[i][j] = new BiomePlains(BiomeMap[i][j]);
+                    else if (b == Biome.BIOME_HILLS)
+                        BiomeMap[i][j] = new BiomeHills(BiomeMap[i][j]);
+                    else if (b == Biome.BIOME_FOREST)
+                        BiomeMap[i][j] = new BiomeForest(BiomeMap[i][j]);
                 }
+                else {
+                    BiomeMap[i][j] = new BiomeWater(BiomeMap[i][j]);
+                }
+
+        diamondSquareGen(0, 0, LAND_W, LAND_D);
+        normalizeHeight(0, 0, LAND_W, LAND_D);
+
+        int bi, bj;
+        for (bi = 0; bi < BIOME_MAP_SIZE; ++bi)
+            for (bj = 0; bj < BIOME_MAP_SIZE; ++bj) {
+                for (i = bi * BIOME_SIZE; i < (bi + 1) * BIOME_SIZE; ++i)
+                    for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j)
+                        CellMap[i][j].cellHeight *= mRandom(BiomeMap[bi][bj].scaleRateMin, BiomeMap[bi][bj].scaleRateMax);
+            }
+
+        normalizeHeight(0, 0, LAND_W, LAND_D);
+        averageHeight();
     }
 
     /**
      * Accessory landscape functions
      */
-    public void normalizeHeight() {
+    public void normalizeHeight(int ws, int ds, int we, int de) {
         double minHeight = 0;
-        for (int i = 0; i < getWidth(); ++i)
-            for (int j = 0; j < getDepth(); ++j)
+        for (int i = ws; i < we; ++i)
+            for (int j = ds; j < de; ++j)
                 minHeight = Math.min(minHeight, CellMap[i][j].cellHeight);
-        for (int i = 0; i < getWidth(); ++i)
-            for (int j = 0; j < getDepth(); ++j)
+        for (int i = ws; i < we; ++i)
+            for (int j = ds; j < de; ++j)
                 CellMap[i][j].cellHeight -= minHeight;
 
         double maxHeight = 0;
-        for (int i = 0; i < getWidth(); ++i)
-            for (int j = 0; j < getDepth(); ++j)
+        for (int i = ws; i < we; ++i)
+            for (int j = ds; j < de; ++j)
                 maxHeight = Math.max(maxHeight, CellMap[i][j].cellHeight);
-        for (int i = 0; i < getWidth(); ++i)
-            for (int j = 0; j < getDepth(); ++j)
+        for (int i = ws; i < we; ++i)
+            for (int j = ds; j < de; ++j)
                 CellMap[i][j].cellHeight /= maxHeight;
     }
 
