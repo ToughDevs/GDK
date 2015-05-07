@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.landscape.game.keys.GameKeys;
 import com.vova.land.Land;
 
@@ -21,6 +22,9 @@ public class PlayState extends GameState{
     Mesh myMesh;
     Model model;
     ModelInstance instance;
+    String vertexShader;
+    String fragmentShader;
+    ShaderProgram shader;
 
     private final int SCALE = 100;
     private final int MAP_SIZE = 64;
@@ -57,6 +61,31 @@ public class PlayState extends GameState{
 
         myMesh.setIndices(indices);
 
+        vertexShader = "attribute vec4 a_position;    \n" +
+                "attribute vec4 a_color;\n" +
+                "attribute vec2 a_texCoord0;\n" +
+                "uniform mat4 u_worldView;\n" +
+                "varying vec4 v_color;" +
+                "varying vec2 v_texCoords;" +
+                "void main()                  \n" +
+                "{                            \n" +
+                "   v_color = a_color; \n" +
+                "   v_texCoords = a_texCoord0; \n" +
+                "   gl_Position =  u_worldView * a_position;  \n"      +
+                "}                            \n" ;
+        fragmentShader = "#ifdef GL_ES\n" +
+                "precision mediump float;\n" +
+                "#endif\n" +
+                "varying vec4 v_color;\n" +
+                "varying vec2 v_texCoords;\n" +
+                //"uniform sampler2D u_texture;\n" +
+                "void main()                                  \n" +
+                "{                                            \n" +
+                "  gl_FragColor = v_color;\n" + // * texture2D(u_texture, v_texCoords);\n" +
+                "}";
+
+        shader = new ShaderProgram(vertexShader, fragmentShader);
+
     }
 
     @Override
@@ -74,12 +103,13 @@ public class PlayState extends GameState{
         for(int i = 2; i <= MAP_SIZE; i++){
             for(int j = 2; j <= MAP_SIZE; j++){
 
-                System.out.println((float) landscape.getPointHeight(i, j) / SCALE * 255);
+                System.out.println(Color.RED.toFloatBits());
 
                 vertices[0] = (float) i / MAP_SIZE;
                 vertices[1] = (float) j / MAP_SIZE;
                 vertices[2] = (float) landscape.getPointHeight(i, j) / SCALE;
                 vertices[3] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i, j) / SCALE * 255, 0f, 255f);
+                //vertices[3] = Color.YELLOW.toFloatBits();
 
                 vertices[6] = (float) (i - 1) / MAP_SIZE;
                 vertices[7] = (float) (j) / MAP_SIZE;
@@ -100,9 +130,14 @@ public class PlayState extends GameState{
 
                 instance = new ModelInstance(model);
 
-                modelBatch.begin(camera);
+                /*modelBatch.begin(camera);
                 modelBatch.render(instance);
-                modelBatch.end();
+                modelBatch.end();*/
+
+                shader.begin();
+                shader.setUniformMatrix("u_worldView", camera.combined);
+                myMesh.render(shader, GL20.GL_TRIANGLES);
+                shader.end();
 
 
                 vertices[0] = (float) i / MAP_SIZE;
@@ -128,9 +163,14 @@ public class PlayState extends GameState{
 
                 instance = new ModelInstance(model);
 
-                modelBatch.begin(camera);
+                /*modelBatch.begin(camera);
                 modelBatch.render(instance);
-                modelBatch.end();
+                modelBatch.end();*/
+
+                shader.begin();
+                shader.setUniformMatrix("u_worldView", camera.combined);
+                myMesh.render(shader, GL20.GL_TRIANGLES);
+                shader.end();
 
             }
         }
