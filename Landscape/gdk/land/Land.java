@@ -1,4 +1,4 @@
-package gdk.land;
+package com.vova.land;
 
 import java.awt.*;
 import java.util.Random;
@@ -13,7 +13,7 @@ public class Land {
     private LandCell[][] CellMap; // height map
 
     public Land() {
-        BIOME_SIZE = 64;
+        BIOME_SIZE = 16;
         BIOME_MAP_SIZE = 4;
         LAND_W = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_D = BIOME_SIZE * BIOME_MAP_SIZE;
@@ -139,13 +139,12 @@ public class Land {
                     for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j) {
                         CellMap[i][j].cellHeight *= mRandom(BiomeMap[bi][bj].scaleRateMin, BiomeMap[bi][bj].scaleRateMax);
                         CellMap[i][j].cellColor = new CellColor(BiomeMap[bi][bj].DEFAULT_COLOR) ;
-                        CellMap[i][j].cellColor = CellMap[i][j].cellColor.add(
-                                new CellColor(
-                                        new Color((float)(Math.random()*0.2), (float)(Math.random()*0.2), (float)(Math.random()*0.2))
-                                )
-                        ) ;
                     }
             }
+
+        averageHeight(5);
+        averageColor(50) ;
+        applyRandomColorMask();
     }
 
     /**
@@ -169,27 +168,95 @@ public class Land {
                 CellMap[i][j].cellHeight /= maxHeight;
     }
 
-    public void averageHeight() {
-        averageHeight(3);
+    public void applyRandomColorMask() {
+        for(int i = 0 ; i < LAND_W ; ++i )
+            for( int j = 0 ; j < LAND_D ; ++j )
+                CellMap[i][j].cellColor = CellMap[i][j].cellColor.add(
+                        new CellColor(
+                                new Color((float)(Math.random()*0.2), (float)(Math.random()*0.2), (float)(Math.random()*0.2))
+                        )
+                ) ;
     }
 
-    public void averageHeight(int avgMagnitude) {
+    public void averageColor(int iterations) {
+        CellColor[][] averageColorMap = new CellColor[LAND_W + 1][LAND_D + 1];
+        double []neighborAverage = new double[3] ;
+        int neighborsCount ;
+        while( iterations-- > 0 ) {
+            for (int i = 0; i < LAND_W; ++i)
+                for (int j = 0; j < LAND_D; ++j) {
+                    neighborsCount = 1 ;
+                    neighborAverage[0] = CellMap[i][j].cellColor.getRed() / 255.f ;
+                    neighborAverage[1] = CellMap[i][j].cellColor.getGreen() / 255.f ;
+                    neighborAverage[2] = CellMap[i][j].cellColor.getBlue() / 255.f ;
+                    if (i > 0) {
+                        neighborAverage[0] += CellMap[i-1][j].cellColor.getRed() / 255.f ;
+                        neighborAverage[1] += CellMap[i-1][j].cellColor.getGreen() / 255.f ;
+                        neighborAverage[2] += CellMap[i-1][j].cellColor.getBlue() / 255.f ;
+                        ++neighborsCount ;
+                    }
+                    if (j > 0) {
+                        neighborAverage[0] += CellMap[i][j-1].cellColor.getRed() / 255.f ;
+                        neighborAverage[1] += CellMap[i][j-1].cellColor.getGreen() / 255.f ;
+                        neighborAverage[2] += CellMap[i][j-1].cellColor.getBlue() / 255.f ;
+                        ++neighborsCount ;
+                    }
+                    if (i < LAND_W-1) {
+                        neighborAverage[0] += CellMap[i+1][j].cellColor.getRed() / 255.f ;
+                        neighborAverage[1] += CellMap[i+1][j].cellColor.getGreen() / 255.f ;
+                        neighborAverage[2] += CellMap[i+1][j].cellColor.getBlue() / 255.f ;
+                        ++neighborsCount ;
+                    }
+                    if (j < LAND_D-1) {
+                        neighborAverage[0] += CellMap[i][j+1].cellColor.getRed() / 255.f ;
+                        neighborAverage[1] += CellMap[i][j+1].cellColor.getGreen() / 255.f ;
+                        neighborAverage[2] += CellMap[i][j+1].cellColor.getBlue() / 255.f ;
+                        ++neighborsCount ;
+                    }
+                    averageColorMap[i][j] = new CellColor(new Color(
+                            (float) neighborAverage[0]/neighborsCount,
+                            (float) neighborAverage[1]/neighborsCount,
+                            (float) neighborAverage[2]/neighborsCount
+                    )) ;
+                }
+            for (int i = 0; i < LAND_W; ++i)
+                for (int j = 0; j < LAND_D; ++j)
+                    CellMap[i][j].cellColor = averageColorMap[i][j];
+        }
+    }
+
+    public void averageHeight(int iterations) {
         double[][] averageHeightMap = new double[LAND_W + 1][LAND_D + 1];
-        for (int i = 0; i < getWidth(); ++i)
-            for (int j = 0; j < getDepth(); ++j) {
-                averageHeightMap[i][j] += CellMap[i][j].cellHeight;
-                if (i > 1)
-                    averageHeightMap[i - 1][j] += CellMap[i][j].cellHeight;
-                if (j > 1)
-                    averageHeightMap[i][j - 1] += CellMap[i][j].cellHeight;
-                if (i < getWidth())
-                    averageHeightMap[i + 1][j] += CellMap[i][j].cellHeight;
-                if (j < getDepth())
-                    averageHeightMap[i][j + 1] += CellMap[i][j].cellHeight;
-            }
-        for (int i = 0; i < getWidth(); ++i)
-            for (int j = 0; j < getDepth(); ++j)
-                CellMap[i][j].cellHeight = Math.max(0, CellMap[i][j].cellHeight - averageHeightMap[i][j] / (5 * avgMagnitude));
+        int[][] averageHeightCellsCnt = new int[LAND_W + 1][LAND_D + 1];
+        while( iterations-- > 0 ) {
+            for (int i = 0; i < LAND_W; ++i)
+                for (int j = 0; j < LAND_D; ++j) {
+                    averageHeightMap[i][j] = CellMap[i][j].cellHeight;
+                    averageHeightCellsCnt[i][j] = 1 ;
+                    if (i > 0) {
+                        averageHeightMap[i][j] += CellMap[i-1][j].cellHeight;
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                    if (j > 0) {
+                        averageHeightMap[i][j] += CellMap[i][j-1].cellHeight;
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                    if (i < LAND_W-1) {
+                        averageHeightMap[i][j] += CellMap[i+1][j].cellHeight;
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                    if (j < LAND_D-1) {
+                        averageHeightMap[i][j] += CellMap[i][j+1].cellHeight;
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                }
+            for (int i = 0; i < LAND_W; ++i)
+                for (int j = 0; j < LAND_D; ++j)
+                    averageHeightMap[i][j] /= averageHeightCellsCnt[i][j] ;
+            for (int i = 0; i < LAND_W; ++i)
+                for (int j = 0; j < LAND_D; ++j)
+                    CellMap[i][j].cellHeight = Math.max(0, CellMap[i][j].cellHeight * 0.5 + averageHeightMap[i][j] * 0.5);
+        }
     }
 
     /**

@@ -1,4 +1,4 @@
-package gdk.land;
+package com.vova.land;
 
 public class TestLaunch {
     public static void main(String args[]) {

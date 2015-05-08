@@ -1,4 +1,4 @@
-package gdk.land;
+package com.vova.land;
 
 public class LandTemperature {
     public static final double LOWEST = -10 ; // ice

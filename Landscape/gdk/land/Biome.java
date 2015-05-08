@@ -1,4 +1,4 @@
-package gdk.land;
+package com.vova.land;
 
 public class Biome {
     public static final int SUBSTANCE_LAND = 0 ;

@@ -1,4 +1,4 @@
-package gdk.land;
+package com.vova.land;
 
 import java.awt.*;
 
