@@ -2,6 +2,7 @@ package com.landscape.game.keys;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import com.landscape.game.PlayState;
 import com.landscape.game.Transformafor;
 
 public class MyGameProcessor extends InputAdapter{
@@ -92,7 +93,8 @@ public class MyGameProcessor extends InputAdapter{
 
     @Override
     public boolean scrolled(int amount){
-        Transformafor.scroll((float)amount / 10);
+        if(amount == -1 && PlayState.camZ > 5f || amount == 1 && PlayState.camZ < 15f)
+            PlayState.camZ += amount;
         return true;
     }
 
