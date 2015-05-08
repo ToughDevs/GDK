@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.landscape.game.keys.GameKeys;
-import com.vova.land.Land;
+import gdk.land.* ;
 
 public class PlayState extends GameState{
 
@@ -32,7 +32,7 @@ public class PlayState extends GameState{
     public static float camX, camY, camZ;
     public static float camLookX, camLookY, camLookZ;
 
-    private final int SCALE = 100;
+    private final int SCALE = 200;
     private final int MAP_SIZE = 64;
 
     public PlayState(GameStateManager gsm){super(gsm);}
@@ -41,24 +41,20 @@ public class PlayState extends GameState{
     public void init() {
         landscape = new Land();
         landscape.generateNew();
-        landscape.normalizeHeight();
-        for( int i = 0 ; i < 5 ; ++i )
-            landscape.averageHeight();
-        landscape.normalizeHeight();
         landscape.setScale(SCALE) ;
 
-        camX = 0.5f;
-        camY = 0.5f;
+        camX = landscape.getDepth()/2;
+        camY = 1000f;
         camZ = 10f;
-        camLookX = 0.5f;
-        camLookY = 0.5f;
+        camLookX = landscape.getDepth()/2;
+        camLookY = landscape.getWidth()/2;
         camLookZ = 0f;
 
         camera = new PerspectiveCamera(5, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(camX, camY, camZ);
         camera.lookAt(camLookX, camLookY, camLookZ);
-        camera.near = 1f;
-        camera.far = 300f;
+        camera.near = 10f;
+        camera.far = 5000f;
         camera.update();
         modelBatch = new ModelBatch();
 
@@ -68,10 +64,10 @@ public class PlayState extends GameState{
 
         indices = new short[] {0, 1, 2};
 
-        myMesh1 = new Mesh[MAP_SIZE - 1][MAP_SIZE - 1];
-        myMesh2 = new Mesh[MAP_SIZE - 1][MAP_SIZE - 1];
+        myMesh1 = new Mesh[landscape.getDepth()][landscape.getWidth()];
+        myMesh2 = new Mesh[landscape.getDepth()][landscape.getWidth()];
 
-        vertexShader = "attribute vec4 a_position;    \n" +
+        /*vertexShader = "attribute vec4 a_position;    \n" +
                 "attribute vec4 a_color;\n" +
                 "attribute vec2 a_texCoord0;\n" +
                 "uniform mat4 u_worldView;\n" +
@@ -82,68 +78,110 @@ public class PlayState extends GameState{
                 "   v_color = a_color; \n" +
                 "   v_texCoords = a_texCoord0; \n" +
                 "   gl_Position =  u_worldView * a_position;  \n"      +
-                "}                            \n" ;
-        fragmentShader = "#ifdef GL_ES\n" +
+                "}                           \n" ;*/
+        vertexShader = "attribute vec4 a_position;\n" +
+                "attribute vec4 a_color;\n" +
+                "attribute vec2 a_texCoord;\n" +
+                "\n" +
+                "uniform mat4 u_projTrans;\n" +
+                "\n" +
+                "varying vec4 v_color;\n" +
+                "varying vec2 v_texCoords;\n" +
+                "\n" +
+                "void main()\n" +
+                "{\n" +
+                "    v_color = a_color;\n" +
+                "    v_color.a = v_color.a * (256.0/255.0);\n" +
+                "    v_texCoords = a_texCoord + 0;\n" +
+                "    gl_Position =  u_projTrans * a_position;\n" +
+                "}";
+        /*fragmentShader = "#ifdef GL_ES\n" +
                 "precision mediump float;\n" +
                 "#endif\n" +
                 "varying vec4 v_color;\n" +
                 "varying vec2 v_texCoords;\n" +
-                //"uniform sampler2D u_texture;\n" +
+                "uniform sampler2D u_texture;\n" +
                 "void main()                                  \n" +
                 "{                                            \n" +
-                "  gl_FragColor = v_color;\n" + // * texture2D(u_texture, v_texCoords);\n" +
+                "  gl_FragColor = v_color;\n" +
+                "}";*/
+        fragmentShader = "#ifdef GL_ES\n" +
+                "#define LOWP lowp\n" +
+                "    precision mediump float;\n" +
+                "#else\n" +
+                "    #define LOWP\n" +
+                "#endif\n" +
+                "\n" +
+                "varying LOWP vec4 v_color;\n" +
+                "varying vec2 v_texCoords;\n" +
+                "\n" +
+                "uniform sampler2D u_texture;\n" +
+                "\n" +
+                "void main()\n" +
+                "{\n" +
+                "    gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" +
                 "}";
 
         shader = new ShaderProgram(vertexShader, fragmentShader);
 
-        for(int i = 2; i <= MAP_SIZE; i++){
-            for(int j = 2; j <= MAP_SIZE; j++){
+        for(int i = 1; i < landscape.getDepth(); i++){
+            for(int j = 1; j < landscape.getWidth(); j++){
 
-                vertices[0] = (float) i / MAP_SIZE;
-                vertices[1] = (float) j / MAP_SIZE;
-                vertices[2] = (float) landscape.getPointHeight(i, j) / SCALE;
-                vertices[3] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i, j) / SCALE * 255, 0f, 255f);
+                System.out.println( landscape.getCellHeight(i-1, j-1) ) ;
 
-                vertices[6] = (float) (i - 1) / MAP_SIZE;
-                vertices[7] = (float) (j) / MAP_SIZE;
-                vertices[8] = (float) landscape.getPointHeight(i - 1, j) / SCALE;
-                vertices[9] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i - 1, j) / SCALE * 255, 0f, 255f);
+                CellColor color ;
 
-                vertices[12] = (float) (i - 1) / MAP_SIZE;
-                vertices[13] = (float) (j - 1) / MAP_SIZE;
-                vertices[14] = (float) landscape.getPointHeight(i - 1, j - 1) / SCALE;
-                vertices[15] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i - 1, j - 1) / SCALE * 255, 0f, 255f);
+                color = landscape.getCellColor(i,j) ;
+                vertices[0] = (float) i ;
+                vertices[1] = (float) j ;
+                vertices[2] = (float) landscape.getCellHeight(i, j) ;
+                vertices[3] = new Color(color.getRed()/255.0f, color.getGreen()/255.0f, color.getBlue()/255.0f, 0).toFloatBits() ;
 
-                myMesh1[i - 2][j - 2] = new Mesh( true, 3, 3,
+                color = landscape.getCellColor(i-1,j) ;
+                vertices[6] = (float) (i - 1) ;
+                vertices[7] = (float) (j) ;
+                vertices[8] = (float) landscape.getCellHeight(i - 1, j) ;
+                vertices[9] = new Color(color.getRed()/255.0f, color.getGreen()/255.0f, color.getBlue()/255.0f, 0).toFloatBits() ;
+
+                color = landscape.getCellColor(i-1,j-1) ;
+                vertices[12] = (float) (i - 1) ;
+                vertices[13] = (float) (j - 1) ;
+                vertices[14] = (float) landscape.getCellHeight(i - 1, j - 1) ;
+                vertices[15] = (new Color(color.getRed()/255.0f, color.getGreen()/255.0f, color.getBlue()/255.0f, 0)).toFloatBits() ;
+
+                myMesh1[i - 1][j - 1] = new Mesh( true, 3, 3,
                         new VertexAttribute( VertexAttributes.Usage.ColorPacked, 4, "a_color" ),
                         new VertexAttribute( VertexAttributes.Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE ),
                         new VertexAttribute( VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE+"0" ) );
 
-                myMesh1[i - 2][j - 2].setVertices(vertices);
-                myMesh1[i - 2][j - 2].setIndices(indices);
+                myMesh1[i - 1][j - 1].setVertices(vertices);
+                myMesh1[i - 1][j - 1].setIndices(indices);
 
-                vertices[0] = (float) i / MAP_SIZE;
-                vertices[1] = (float) j / MAP_SIZE;
-                vertices[2] = (float)landscape.getPointHeight(i, j) / SCALE;
-                vertices[3] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i, j) / SCALE * 255, 0f, 255f);
+                color = landscape.getCellColor(i,j) ;
+                vertices[0] = (float) i ;
+                vertices[1] = (float) j ;
+                vertices[2] = (float)landscape.getCellHeight(i, j) ;
+                vertices[3] = (new Color(color.getRed()/255.0f, color.getGreen()/255.0f, color.getBlue()/255.0f, 0)).toFloatBits() ;
 
-                vertices[6] = (float) (i - 1) / MAP_SIZE;
-                vertices[7] = (float) (j - 1) / MAP_SIZE;
-                vertices[8] = (float)landscape.getPointHeight(i - 1, j - 1) / SCALE;
-                vertices[9] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i - 1, j - 1) / SCALE * 255f, 0f, 255f);
+                color = landscape.getCellColor(i-1,j-1) ;
+                vertices[6] = (float) (i - 1) ;
+                vertices[7] = (float) (j - 1) ;
+                vertices[8] = (float)landscape.getCellHeight(i - 1, j - 1) ;
+                vertices[3] = (new Color(color.getRed()/255.0f, color.getGreen()/255.0f, color.getBlue()/255.0f, 0)).toFloatBits() ;
 
-                vertices[12] = (float) i / MAP_SIZE;
-                vertices[13] = (float) (j - 1) / MAP_SIZE;
-                vertices[14] = (float)landscape.getPointHeight(i, j - 1) / SCALE;
-                vertices[15] = Color.toFloatBits(0f, (float) landscape.getPointHeight(i, j - 1) / SCALE * 255, 0f, 255f);
+                color = landscape.getCellColor(i,j-1) ;
+                vertices[12] = (float) i ;
+                vertices[13] = (float) (j - 1) ;
+                vertices[14] = (float)landscape.getCellHeight(i, j - 1) ;
+                vertices[3] = (new Color(color.getRed()/255.0f, color.getGreen()/255.0f, color.getBlue()/255.0f, 0)).toFloatBits() ;
 
-                myMesh2[i - 2][j - 2] = new Mesh( true, 3, 3,
+                myMesh2[i - 1][j - 1] = new Mesh( true, 3, 3,
                         new VertexAttribute( VertexAttributes.Usage.ColorPacked, 4, "a_color" ),
                         new VertexAttribute( VertexAttributes.Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE ),
                         new VertexAttribute( VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE+"0" ) );
 
-                myMesh2[i - 2][j - 2].setVertices(vertices);
-                myMesh2[i - 2][j - 2].setIndices(indices);
+                myMesh2[i - 1][j - 1].setVertices(vertices);
+                myMesh2[i - 1][j - 1].setIndices(indices);
             }
         }
 
@@ -166,8 +204,8 @@ public class PlayState extends GameState{
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        for(int i = 2; i <= MAP_SIZE; i++){
-            for(int j = 2; j <= MAP_SIZE; j++){
+        for(int i = 1; i < landscape.getDepth(); i++){
+            for(int j = 1; j < landscape.getWidth(); j++){
 
                 /*ModelBuilder modelBuilder = new ModelBuilder();
                 modelBuilder.begin();
@@ -181,9 +219,9 @@ public class PlayState extends GameState{
                 modelBatch.end();*/
 
                 shader.begin();
-                shader.setUniformMatrix("u_worldView", camera.combined);
-                myMesh1[i - 2][j - 2].render(shader, GL20.GL_TRIANGLES);
-                myMesh2[i - 2][j - 2].render(shader, GL20.GL_TRIANGLES);
+                shader.setUniformMatrix("u_projTrans", camera.combined);
+                myMesh1[i - 1][j - 1].render(shader, GL20.GL_TRIANGLES);
+                myMesh2[i - 1][j - 1].render(shader, GL20.GL_TRIANGLES);
                 shader.end();
             }
         }
@@ -194,16 +232,16 @@ public class PlayState extends GameState{
         System.out.println(String.format("Cam direction: %.2f %.2f %.2f", camera.direction.x, camera. direction.y, camera.direction.z));
         System.out.println(String.format("Cam position: %.2f %.2f %.2f", camera.position.x, camera. position.y, camera.position.z));
         if(GameKeys.isDown(GameKeys.DOWN)){
-            camY -= 0.1f;
+            camY -= 10f;
         }
         if(GameKeys.isDown(GameKeys.UP)){
-            camY += 0.1f;
+            camY += 10f;
         }
         if(GameKeys.isDown(GameKeys.LEFT)){
-            camX -= 0.1f;
+            camX -= 10f;
         }
         if(GameKeys.isDown(GameKeys.RIGHT)) {
-            camX += 0.1f;
+            camX += 10f;
         }
         if(GameKeys.mouseX > Landscape.WIDTH - Landscape.WIDTH / 10){
             camera.rotate(new Vector3(0, 0, 1f), -2);

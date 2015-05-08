@@ -93,8 +93,8 @@ public class MyGameProcessor extends InputAdapter{
 
     @Override
     public boolean scrolled(int amount){
-        if(amount == -1 && PlayState.camZ > 5f || amount == 1 && PlayState.camZ < 15f)
-            PlayState.camZ += amount;
+        if(amount == -1 && PlayState.camZ > 10f || amount == 1 && PlayState.camZ < 2000f)
+            PlayState.camZ += 10*amount;
         return true;
     }
 

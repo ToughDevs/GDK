@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.landscape.game.keys.GameKeys;
 import com.landscape.game.keys.MyGameProcessor;
-import com.vova.land.Land;
 
 public class Landscape extends ApplicationAdapter {
 
