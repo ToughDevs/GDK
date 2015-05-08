@@ -1,4 +1,4 @@
-package com.vova.land;
+package gdk.land;
 
 import java.awt.*;
 
@@ -13,12 +13,12 @@ public class BiomeDesert extends Biome {
         humidityMedian = 0.1 ;
         medianCrop = 0.2 ;
         maxCrop = 0.6 ;
+        DEFAULT_COLOR = new CellColor(Color.ORANGE);
     }
 
     BiomeDesert( Biome biome ) {
         this();
         SUBSTANCE_TYPE = biome.SUBSTANCE_TYPE;
         COLD = biome.COLD;
-        DEFAULT_COLOR = new CellColor(Color.ORANGE);
     }
 }

@@ -1,4 +1,4 @@
-package com.vova.land;
+package gdk.land;
 
 public class CellType {
 }

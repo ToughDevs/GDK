@@ -1,9 +1,9 @@
-package com.vova.land;
+package gdk.land;
 
 
 public class LandCell {
     public CellColor cellColor;
-    public CellType cellType;
+    public int BiomeID ;
     public LandTemperature cellTemperature;
     public double cellHeight;
     public double depth ; // for water
