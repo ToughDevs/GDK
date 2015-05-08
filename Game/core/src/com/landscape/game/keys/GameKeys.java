@@ -6,6 +6,7 @@ public class GameKeys {
 
     public static int mouseX;
     public static int mouseY;
+    public static int scroll;
 
     private static boolean mouseDown = false;
     public static int mousePressedX;
