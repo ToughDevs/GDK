@@ -1,4 +1,4 @@
-package gdk.land;
+package gdk.land ;
 
 import java.awt.*;
 import java.util.Random;
@@ -13,8 +13,8 @@ public class Land {
     private LandCell[][] CellMap; // height map
 
     public Land() {
-        BIOME_SIZE = 16;
-        BIOME_MAP_SIZE = 4;
+        BIOME_SIZE = 64;
+        BIOME_MAP_SIZE = 8;
         LAND_W = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_D = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_SCALE = 1;
@@ -131,6 +131,7 @@ public class Land {
 
         diamondSquareGen(0, 0, LAND_W, LAND_D);
         normalizeHeight(0, 0, LAND_W, LAND_D);
+        averageHeight(5);
 
         int bi, bj;
         for (bi = 0; bi < BIOME_MAP_SIZE; ++bi)
@@ -142,7 +143,7 @@ public class Land {
                     }
             }
 
-        averageHeight(5);
+        averageHeight(20);
         averageColor(50) ;
         applyRandomColorMask();
     }
