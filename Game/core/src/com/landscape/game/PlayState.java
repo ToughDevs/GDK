@@ -26,6 +26,21 @@ public class PlayState extends GameState{
 
     @Override
     public void init() {
+        camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        camX = 0f;
+        camY = 0f;
+        camZ = 30f;
+        camLookX = 20f;
+        camLookY = 20f;
+        camLookZ = 0f;
+        camera.position.set(camX, camY, camZ);
+        camera.lookAt(camLookX, camLookY, camLookZ);
+        camera.near = 1f;
+        camera.far = 5000f;
+        camera.update();
+
+        renderer = new ImmediateModeRenderer20(20000000, false, true, 0);
+
         landscape = new Land();
         landscape.generateNew();
         landscape.setScale(SCALE) ;
@@ -39,23 +54,9 @@ public class PlayState extends GameState{
                         landscape.getCellColor(i,j).getBlue()/255.0f, 0
                 ) ;
 
-        v1 = v2 = v3  = new float[3];
-
-        camX = 0;
-        camY = 0f;
-        camZ = 800f;
-        camLookX = 0;
-        camLookY = 5f;
-        camLookZ = 0f;
-
-        camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(camX, camY, camZ);
-        camera.lookAt(camLookX, camLookY, camLookZ);
-        camera.near = 10f;
-        camera.far = 5000f;
-        camera.update();
-
-        renderer = new ImmediateModeRenderer20(20000000, false, true, 0);
+        v1 = new float[3];
+        v2 = new float[3];
+        v3 = new float[3];
     }
 
     @Override
@@ -78,25 +79,27 @@ public class PlayState extends GameState{
     @Override
     public void draw() {
 
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         renderer.begin(camera.combined, GL20.GL_TRIANGLES);
         for( int i = 1 ; i < landscape.getDepth() ; ++i )
             for( int j = 1 ; j < landscape.getWidth() ; ++j ) {
-                System.out.println(String.format("Coords: %.2f %.2f %.2f", i * SCALE * zoomPlane , j * SCALE * zoomPlane, (float) landscape.getCellHeight(i, j)));
+                //System.out.println(String.format("Coords: %.2f %.2f %.2f", i * SCALE * zoomPlane , j * SCALE * zoomPlane, (float) landscape.getCellHeight(i, j)));
                 v1[0] = i * SCALE * zoomPlane ;
-                v1[2] = j * SCALE * zoomPlane ;
-                v1[1] = (float) landscape.getCellHeight(i, j) ;
+                v1[1] = j * SCALE * zoomPlane ;
+                v1[2] = (float) landscape.getCellHeight(i, j) ;
                 v2[0] = (i-1) * SCALE * zoomPlane ;
-                v2[2] = (j-1) * SCALE * zoomPlane ;
-                v2[1] = (float) landscape.getCellHeight(i-1, j-1) ;
+                v2[1] = (j-1) * SCALE * zoomPlane ;
+                v2[2] = (float) landscape.getCellHeight(i-1, j-1) ;
 
                 v3[0] = (i-1) * SCALE * zoomPlane ;
-                v3[2] = j * SCALE * zoomPlane ;
-                v3[1] = (float) landscape.getCellHeight(i-1, j) ;
+                v3[1] = j * SCALE * zoomPlane ;
+                v3[2] = (float) landscape.getCellHeight(i-1, j) ;
                 drawTriangle(v1, v2, v3, cellsColor[i][j], cellsColor[i-1][j-1], cellsColor[i-1][j]);
 
                 v3[0] = i * SCALE * zoomPlane ;
-                v3[2] = (j-1) * SCALE * zoomPlane ;
-                v3[1] = (float) landscape.getCellHeight(i, j-1) ;
+                v3[1] = (j-1) * SCALE * zoomPlane ;
+                v3[2] = (float) landscape.getCellHeight(i, j-1) ;
                 drawTriangle(v1, v2, v3, cellsColor[i][j], cellsColor[i-1][j-1], cellsColor[i][j-1]);
             }
         renderer.end();
