@@ -2,7 +2,7 @@ package gdk.land;
 
 public class TestLaunch {
     public static void main(String args[]) {
-        Landscape landscape = new Landscape();
+        Land landscape = new Land();
         landscape.generateNew();
         //landscape.normalizeHeight(0, 0, landscape.getWidth(), landscape.getDepth());
         //landscape.averageHeight();

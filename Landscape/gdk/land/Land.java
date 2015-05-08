@@ -3,7 +3,7 @@ package gdk.land;
 import java.awt.*;
 import java.util.Random;
 
-public class Landscape {
+public class Land {
     public int BIOME_SIZE; // size of each biome
     public int BIOME_MAP_SIZE; // size of biome map
     private int LAND_W; // land width
@@ -12,8 +12,8 @@ public class Landscape {
     public Biome[][] BiomeMap; // biome map
     private LandCell[][] CellMap; // height map
 
-    public Landscape() {
-        BIOME_SIZE = 8;
+    public Land() {
+        BIOME_SIZE = 64;
         BIOME_MAP_SIZE = 4;
         LAND_W = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_D = BIOME_SIZE * BIOME_MAP_SIZE;
@@ -59,6 +59,10 @@ public class Landscape {
 
     public double getCellHeight(int x, int y) {
         return CellMap[x][y].cellHeight * LAND_SCALE ;
+    }
+
+    public CellColor getCellColor(int x, int y) {
+        return CellMap[x][y].cellColor ;
     }
 
     public void generateNewOld() {
@@ -142,9 +146,6 @@ public class Landscape {
                         ) ;
                     }
             }
-
-        normalizeHeight(0, 0, LAND_W, LAND_D);
-        averageHeight();
     }
 
     /**
