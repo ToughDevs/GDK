@@ -26,6 +26,9 @@ public class GameStateManager{
     public void update(float dt){
         gameState.update(dt);
     }
+    public void scroll(int amount){
+        gameState.scroll(-amount);
+    }
     public void draw(){
         gameState.draw();
     }
