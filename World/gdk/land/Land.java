@@ -1,4 +1,4 @@
-package gdk.land;
+package land;
 
 import java.awt.*;
 import java.util.Random;

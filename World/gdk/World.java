@@ -1,7 +1,5 @@
-package gdk;
-
-import gdk.land.Land;
-import gdk.animal.Animal;
+import land.Land;
+import animal.Animal;
 
 import java.util.ArrayList;
 import java.awt.Color;
@@ -16,10 +14,12 @@ public class World {
     }
 
     public void generate(int biomesCount, int biomeSize, int animalsCount) {
+        int mapSize = biomesCount*biomeSize;
+
         animals = new ArrayList<Animal>();
         for (int i = 0; i < animalsCount; i++) {
             animals.add(new Animal(
-                    new Point(width, height)
+                    new Point(mapSize, mapSize)
             ));
         }
 
@@ -27,8 +27,8 @@ public class World {
         land.BIOME_SIZE = biomeSize;
         land.BIOME_MAP_SIZE = biomeSize;
 
-        land.generateNew();
-        land.normalizeHeight();
-        land.averageHeight();
+        // land.generateNew();
+        // land.normalizeHeight();
+        // land.averageHeight();
     }
 }

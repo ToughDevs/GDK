@@ -1,4 +1,4 @@
-package gdk.animal;
+package animal;
 
 import java.awt.Point;
 import java.util.Random;

@@ -1,4 +1,4 @@
-package gdk.land;
+package land;
 
 public class CellType {
 }
