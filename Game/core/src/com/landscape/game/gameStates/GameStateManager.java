@@ -1,12 +1,13 @@
-package com.landscape.game;
+package com.landscape.game.gameStates;
 
 public class GameStateManager{
 
     private GameState gameState;
 
     public static final int PLAY = 1;
+    public static final int MENU = 2;
 
-    public GameStateManager(){setState(PLAY);}
+    public GameStateManager(){setState(MENU);}
 
     public void setState(int state){
         if(gameState != null)
@@ -14,6 +15,9 @@ public class GameStateManager{
         switch (state){
             case PLAY:
                 gameState = new PlayState(this);
+                break;
+            case MENU:
+                gameState = new MenuState(this);
                 break;
             default:
                 gameState = null;

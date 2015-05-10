@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class BiomeWater extends Biome {
     BiomeWater() {
-        BIOME_ID = Biome.BIOME_WATER ;
+        BIOME_ID = BIOME_WATER;
 
         scaleRateMin = 0.05 ;
         scaleRateMax = 0.1 ;

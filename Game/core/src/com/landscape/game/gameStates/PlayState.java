@@ -1,9 +1,10 @@
-package com.landscape.game;
+package com.landscape.game.gameStates;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
 import com.badlogic.gdx.math.Vector3;
+import com.landscape.game.Game;
 import com.landscape.game.keys.GameKeys;
 import gdk.land.* ;
 
@@ -20,6 +21,9 @@ public class PlayState extends GameState{
     private float zoomPlane = 0.01f ;
     private final float MIN_CAM_HEIGHT = 20f;
     private final float MAX_CAM_HEIGHT = 300f;
+
+    private float drawTypeX;
+    private float drawTypeY;
 
     private float[] v1, v2, v3;
 
@@ -56,6 +60,9 @@ public class PlayState extends GameState{
 
         around = new Vector3(0, 0, 1);
         front  = new Vector3();
+
+        drawTypeX = 1;
+        drawTypeY = 1;
     }
 
     @Override
@@ -84,27 +91,63 @@ public class PlayState extends GameState{
     @Override
     public void draw() {
 
+        int startI = 0;
+        int finishI = landscape.getDepth();
+        int iteratorI = 1;
+        int startJ = 0;
+        int finishJ = landscape.getWidth();
+        int iteratorJ = 1;
+
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         renderer.begin(camera.combined, GL20.GL_TRIANGLES);
-        for( int i = 1 ; i < landscape.getDepth() ; ++i )
-            for( int j = 1 ; j < landscape.getWidth() ; ++j ) {
-                v1[0] = i * SCALE * zoomPlane ;
-                v1[1] = j * SCALE * zoomPlane ;
-                v1[2] = (float) landscape.getCellHeight(i, j) ;
-                v2[0] = (i-1) * SCALE * zoomPlane ;
-                v2[1] = (j-1) * SCALE * zoomPlane ;
-                v2[2] = (float) landscape.getCellHeight(i-1, j-1) ;
+        if(drawTypeX < 0 && drawTypeY < 0) {
+            startI = 1;
+            finishI = landscape.getDepth();
+            iteratorI = 1;
+            startJ = 1;
+            finishJ = landscape.getWidth();
+            iteratorJ = 1;
+        }else if(drawTypeX < 0 && drawTypeY >= 0){
+            startI = 1;
+            finishI = landscape.getDepth();
+            iteratorI = 1;
+            startJ = landscape.getWidth() - 1;
+            finishJ = 0;
+            iteratorJ = -1;
+        }else if(drawTypeX >= 0 && drawTypeY < 0){
+            startI = landscape.getDepth() - 1;
+            finishI = 0;
+            iteratorI = -1;
+            startJ = 1;
+            finishJ = landscape.getWidth();
+            iteratorJ = 1;
+        }else{
+            startI = landscape.getDepth() - 1;
+            finishI = 0;
+            iteratorI = -1;
+            startJ = landscape.getWidth() - 1;
+            finishJ = 0;
+            iteratorJ = -1;
+        }
+        for (int i = startI; Math.abs(finishI - i) >= 1; i += iteratorI)
+            for (int j = startJ; Math.abs(finishJ - j) >= 1; j += iteratorJ) {
+                v1[0] = i * SCALE * zoomPlane;
+                v1[1] = j * SCALE * zoomPlane;
+                v1[2] = (float) landscape.getCellHeight(i, j);
+                v2[0] = (i - 1) * SCALE * zoomPlane;
+                v2[1] = (j - 1) * SCALE * zoomPlane;
+                v2[2] = (float) landscape.getCellHeight(i - 1, j - 1);
 
-                v3[0] = (i-1) * SCALE * zoomPlane ;
-                v3[1] = j * SCALE * zoomPlane ;
-                v3[2] = (float) landscape.getCellHeight(i-1, j) ;
-                drawTriangle(v1, v2, v3, cellsColor[i][j], cellsColor[i-1][j-1], cellsColor[i-1][j]);
+                v3[0] = (i - 1) * SCALE * zoomPlane;
+                v3[1] = j * SCALE * zoomPlane;
+                v3[2] = (float) landscape.getCellHeight(i - 1, j);
+                drawTriangle(v1, v2, v3, cellsColor[i][j], cellsColor[i - 1][j - 1], cellsColor[i - 1][j]);
 
-                v3[0] = i * SCALE * zoomPlane ;
-                v3[1] = (j-1) * SCALE * zoomPlane ;
-                v3[2] = (float) landscape.getCellHeight(i, j-1) ;
-                drawTriangle(v1, v2, v3, cellsColor[i][j], cellsColor[i-1][j-1], cellsColor[i][j-1]);
+                v3[0] = i * SCALE * zoomPlane;
+                v3[1] = (j - 1) * SCALE * zoomPlane;
+                v3[2] = (float) landscape.getCellHeight(i, j - 1);
+                drawTriangle(v1, v2, v3, cellsColor[i][j], cellsColor[i - 1][j - 1], cellsColor[i][j - 1]);
             }
         renderer.end();
     }
@@ -124,16 +167,25 @@ public class PlayState extends GameState{
             camera.translate(front.x / front.len(), front.y / front.len(), 0);
         }
         if(GameKeys.mousePressed()) {
-            if (GameKeys.mouseX > Landscape.WIDTH - Landscape.WIDTH / 10) {
+            if (GameKeys.mouseX > Game.WIDTH - Game.WIDTH / 10) {
                 camera.rotate(around, -1);
-            } else if (GameKeys.mouseX < Landscape.WIDTH / 10) {
+            } else if (GameKeys.mouseX < Game.WIDTH / 10) {
                 camera.rotate(around, 1);
             }
-            if (GameKeys.mouseY > Landscape.HEIGHT - Landscape.HEIGHT / 10) {
+            if (GameKeys.mouseY > Game.HEIGHT - Game.HEIGHT / 10) {
                 camera.rotate(front, -1);
-            } else if (GameKeys.mouseY < Landscape.HEIGHT / 10) {
+            } else if (GameKeys.mouseY < Game.HEIGHT / 10) {
                 camera.rotate(front, 1);
             }
+        }
+        if(GameKeys.isPressed(GameKeys.ESCAPE)){
+            gsm.setState(gsm.MENU);
+        }
+        if(GameKeys.isPressed(GameKeys.ENTER)){
+            drawTypeY = -drawTypeY;
+        }
+        if(GameKeys.isPressed(GameKeys.SHIFT)){
+            drawTypeX = -drawTypeX;
         }
     }
 

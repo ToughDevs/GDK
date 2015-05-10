@@ -2,11 +2,9 @@ package com.landscape.game.keys;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
-import com.landscape.game.GameStateManager;
-import com.landscape.game.PlayState;
-import com.landscape.game.Transformafor;
+import com.landscape.game.gameStates.GameStateManager;
 
-public class MyGameProcessor extends InputAdapter{
+public class MyGameProcessor extends InputAdapter {
 
     private GameStateManager gsm;
 

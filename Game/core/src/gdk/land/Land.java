@@ -316,6 +316,6 @@ public class Land {
     private int mRandom(int from, int to) {
         if (from > to)
             return 0;
-        return (int)Math.round( mRandom((double)from, (double)to) ) ;
+        return (int) Math.round(mRandom((double) from, (double) to)) ;
     }
 }
