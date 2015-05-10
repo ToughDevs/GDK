@@ -1,7 +1,7 @@
-package gdk.world;
+package gdk;
 
-import gdk.land.Landscape;
-import gdk.animal.Animal ;
+import gdk.land.Land;
+import gdk.animal.Animal;
 
 import java.util.ArrayList;
 import java.awt.Color;
@@ -9,13 +9,13 @@ import java.awt.Point;
 
 public class World {
     ArrayList<Animal> animals;
-    Landscape landscape;
+    Land land;
 
     public void tick() {
 
     }
 
-    public void generate(int width, int height, int animalsCount) {
+    public void generate(int biomesCount, int biomeSize, int animalsCount) {
         animals = new ArrayList<Animal>();
         for (int i = 0; i < animalsCount; i++) {
             animals.add(new Animal(
@@ -23,9 +23,12 @@ public class World {
             ));
         }
 
-        landscape = new Landscape();
-        landscape.generateNew();
-        landscape.normalizeHeight();
-        landscape.averageHeight();
+        land = new Land();
+        land.BIOME_SIZE = biomeSize;
+        land.BIOME_MAP_SIZE = biomeSize;
+
+        land.generateNew();
+        land.normalizeHeight();
+        land.averageHeight();
     }
 }
