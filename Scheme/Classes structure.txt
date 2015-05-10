@@ -6,6 +6,7 @@ Game
 	+pause()
 	+paint()
 -------------
+
 World
 	-animals : Animal[]
 	-landscape : Landscape
@@ -14,31 +15,39 @@ World
 	+generate()
 	+save()
 	+load()
-	
 -------------	
+
 Landscape
-	-LAND_W : int
-	-LAND_D : int
-	-LAND_SCALE : double
-	-HeightMap[][] : double
 	-------------------------------
-	+getWidth(width) : int 
-	+setWidth() : void
-	+getDepth(depth) : int
-	+setDepth() : void
-	+getScale(scale) : double
+	+setWidth(int) : void
+	+setDepth(int) : void
 	+setHeightScale() : void
 	+generateNew() : void
 	+normalizeHeight() : void
 	+averageHeight() : void
+//Landscape info getters
+	+getDepth() : int
+	+getWidth() : int
 //Cell info getters
 	+getCellHeight(x, y) : double
 	+getCellTemperature(x, y) : double
 	+getCellFertility(x, y) : double
 	+getCellHumidity(x, y) : double
-	+getCellCrop(x, y) : double
+	+getCellVirulence(x, y) : double
+	+getCellVegetation(x, y) : double
+	+getCellFreshMeat(x, y) : double
+	+getCellRottenMeat(x, y) : double
 	+getCellBiomType(x, y) : Biom
+//Cell info setters
+	+setCellTemperature(x, y)
+	+setCellFertility(x, y)
+	+setCellHumidity(x, y)
+	+setCellVirulence(x, y)
+	+setCellVegetation(x, y)
+	+setCellFreshMeat(x, y)
+	+setCellRottenMeat(x, y)
 -------------------
+
 Animal
 	+coords : Point
 	+predator : bool
