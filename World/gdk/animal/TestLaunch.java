@@ -1,5 +1,4 @@
-import gdk.land.Landscape ;
-import gdk.world.World ;
+import gdk.animal.Animal ;
 
 public class TestLaunch {
     public static void main(String args[]) {
