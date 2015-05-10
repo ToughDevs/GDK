@@ -2,10 +2,18 @@ package com.landscape.game.keys;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
+import com.landscape.game.GameStateManager;
 import com.landscape.game.PlayState;
 import com.landscape.game.Transformafor;
 
 public class MyGameProcessor extends InputAdapter{
+
+    private GameStateManager gsm;
+
+    public MyGameProcessor(GameStateManager gsm){
+        this.gsm = gsm;
+    }
+
     @Override
     public boolean keyDown(int k){
         if(k == Keys.UP){
@@ -93,8 +101,7 @@ public class MyGameProcessor extends InputAdapter{
 
     @Override
     public boolean scrolled(int amount){
-        if(amount == -1 && PlayState.camZ > 10f || amount == 1 && PlayState.camZ < 2000f)
-            PlayState.camZ += 10*amount;
+        gsm.scroll(amount);
         return true;
     }
 

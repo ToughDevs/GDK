@@ -9,16 +9,17 @@ import gdk.land.* ;
 
 public class PlayState extends GameState{
 
-    PerspectiveCamera camera;
-    Land landscape;
-    ImmediateModeRenderer20 renderer;
-    Color [][] cellsColor ;
-
-    public static float camX, camY, camZ;
-    public static float camLookX, camLookY, camLookZ;
+    private PerspectiveCamera camera;
+    private Land landscape;
+    private ImmediateModeRenderer20 renderer;
+    private Color [][] cellsColor ;
+    private Vector3 around;
+    private Vector3 front;
 
     private final int SCALE = 10;
     private float zoomPlane = 0.01f ;
+    private final float MIN_CAM_HEIGHT = 20f;
+    private final float MAX_CAM_HEIGHT = 300f;
 
     private float[] v1, v2, v3;
 
@@ -27,14 +28,9 @@ public class PlayState extends GameState{
     @Override
     public void init() {
         camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camX = 0f;
-        camY = 0f;
-        camZ = 30f;
-        camLookX = 20f;
-        camLookY = 20f;
-        camLookZ = 0f;
-        camera.position.set(camX, camY, camZ);
-        camera.lookAt(camLookX, camLookY, camLookZ);
+        camera.position.set(0, 0, 30f);
+        camera.lookAt(20f, 20f, 0f);
+        camera.rotate(camera.direction, 50);
         camera.near = 1f;
         camera.far = 5000f;
         camera.update();
@@ -57,14 +53,23 @@ public class PlayState extends GameState{
         v1 = new float[3];
         v2 = new float[3];
         v3 = new float[3];
+
+        around = new Vector3(0, 0, 1);
+        front  = new Vector3();
     }
 
     @Override
     public void update(float dt) {
+        front.set(camera.direction.x, camera.direction.y, camera.direction.z);
+        front = front.crs(around);
         handleInput();
-        camera.position.set(camX, camY, camZ);
-        camera.lookAt(camLookX, camLookY, camLookZ);
         camera.update();
+    }
+
+    @Override
+    public void scroll(int amount){
+        if(camera.position.z > MIN_CAM_HEIGHT && amount > 0 || amount < 0 && camera.position.z < MAX_CAM_HEIGHT)
+            camera.translate(camera.direction.x * amount, camera.direction.y * amount, camera.direction.z * amount);
     }
 
     void drawTriangle(float []v1, float []v2, float []v3, Color c1, Color c2, Color c3) {
@@ -84,7 +89,6 @@ public class PlayState extends GameState{
         renderer.begin(camera.combined, GL20.GL_TRIANGLES);
         for( int i = 1 ; i < landscape.getDepth() ; ++i )
             for( int j = 1 ; j < landscape.getWidth() ; ++j ) {
-                //System.out.println(String.format("Coords: %.2f %.2f %.2f", i * SCALE * zoomPlane , j * SCALE * zoomPlane, (float) landscape.getCellHeight(i, j)));
                 v1[0] = i * SCALE * zoomPlane ;
                 v1[1] = j * SCALE * zoomPlane ;
                 v1[2] = (float) landscape.getCellHeight(i, j) ;
@@ -107,37 +111,29 @@ public class PlayState extends GameState{
 
     @Override
     public void handleInput() {
-        //System.out.println(String.format("Cam direction: %.2f %.2f %.2f", camera.direction.x, camera. direction.y, camera.direction.z));
-        //System.out.println(String.format("Cam position: %.2f %.2f %.2f", camera.position.x, camera. position.y, camera.position.z));
         if(GameKeys.isDown(GameKeys.DOWN)){
-            camY -= 10f;
+            camera.translate(-camera.direction.x, -camera.direction.y, 0);
         }
         if(GameKeys.isDown(GameKeys.UP)){
-            camY += 10f;
+            camera.translate(camera.direction.x, camera.direction.y, 0);
         }
         if(GameKeys.isDown(GameKeys.LEFT)){
-            camX -= 10f;
+            camera.translate(-front.x / front.len(), -front.y / front.len(), 0);
         }
         if(GameKeys.isDown(GameKeys.RIGHT)) {
-            camX += 10f;
+            camera.translate(front.x / front.len(), front.y / front.len(), 0);
         }
-        if(GameKeys.mouseX > Landscape.WIDTH - Landscape.WIDTH / 10){
-            camera.rotate(new Vector3(0, 0, 1f), -2);
-        }
-        else if(GameKeys.mouseX < Landscape.WIDTH / 10){
-            camera.rotate(new Vector3(0, 0, 1f), 2);
-        }
-        if(GameKeys.mouseY > Landscape.HEIGHT - Landscape.HEIGHT / 10){
-            //System.out.println(camLookX + " " + camLookY + " " + camLookZ);
-            camLookX += (camera.position.x - camera.direction.x) / 100f;
-            camLookY += (camera.position.y - camera.direction.y) / 100f;
-            camLookZ += (camera.position.z - camera.direction.z) / 100f;
-        }
-        else if(GameKeys.mouseY < Landscape.HEIGHT / 10){
-            //System.out.println(camLookX + " " + camLookY + " " + camLookZ);
-            camLookX -= (camera.position.x - camera.direction.x) / 100f;
-            camLookY -= (camera.position.y - camera.direction.y) / 100f;
-            camLookZ -= (camera.position.z - camera.direction.z) / 100f;
+        if(GameKeys.mousePressed()) {
+            if (GameKeys.mouseX > Landscape.WIDTH - Landscape.WIDTH / 10) {
+                camera.rotate(around, -1);
+            } else if (GameKeys.mouseX < Landscape.WIDTH / 10) {
+                camera.rotate(around, 1);
+            }
+            if (GameKeys.mouseY > Landscape.HEIGHT - Landscape.HEIGHT / 10) {
+                camera.rotate(front, -1);
+            } else if (GameKeys.mouseY < Landscape.HEIGHT / 10) {
+                camera.rotate(front, 1);
+            }
         }
     }
 

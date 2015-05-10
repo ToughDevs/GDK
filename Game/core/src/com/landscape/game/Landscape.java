@@ -9,8 +9,8 @@ import com.landscape.game.keys.MyGameProcessor;
 
 public class Landscape extends ApplicationAdapter {
 
-    public static final int WIDTH = 1200;
-    public static final int HEIGHT = 600;
+    public static final int WIDTH = 600;
+    public static final int HEIGHT = 480;
 
     private GameStateManager gsm;
 
@@ -19,7 +19,7 @@ public class Landscape extends ApplicationAdapter {
         gsm = new GameStateManager();
         gsm.init();
 
-        Gdx.input.setInputProcessor(new MyGameProcessor());
+        Gdx.input.setInputProcessor(new MyGameProcessor(gsm));
 
 	}
 
