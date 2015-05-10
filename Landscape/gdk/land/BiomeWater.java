@@ -8,7 +8,7 @@ public class BiomeWater extends Biome {
 
         scaleRateMin = 0.05 ;
         scaleRateMax = 0.1 ;
-        temperatureMedian = new LandTemperature(10) ;
+        temperatureMedian = new CellTemperature(10) ;
         fertilityMedian = 0.1 ;
         humidityMedian = 0.9 ;
         medianCrop = 0.2 ;

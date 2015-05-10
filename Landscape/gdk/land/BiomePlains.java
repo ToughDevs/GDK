@@ -8,7 +8,7 @@ public class BiomePlains extends Biome {
 
         scaleRateMin = 0.15 ;
         scaleRateMax = 0.25 ;
-        temperatureMedian = new LandTemperature(25);
+        temperatureMedian = new CellTemperature(25);
         fertilityMedian = 0.5 ;
         humidityMedian = 0.3 ;
         medianCrop = 0.5 ;

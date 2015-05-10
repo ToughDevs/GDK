@@ -11,7 +11,7 @@ public class Biome {
 
     public double scaleRateMin ; // 0 for bottom of the river
     public double scaleRateMax ; // 1 for mountain peak
-    public LandTemperature temperatureMedian ;
+    public CellTemperature temperatureMedian ;
     public double fertilityMedian ;
     public double humidityMedian ;
     public double medianCrop ;
