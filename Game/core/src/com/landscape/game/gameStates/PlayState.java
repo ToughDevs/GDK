@@ -3,15 +3,20 @@ package com.landscape.game.gameStates;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.World;
 import com.landscape.game.Game;
+import com.landscape.game.AnimalInstance;
 import com.landscape.game.keys.GameKeys;
 import gdk.land.* ;
 
 public class PlayState extends GameState{
 
+    private World world;
     private PerspectiveCamera camera;
     private Land landscape;
+    private AnimalInstance animalInstances[];
     private ImmediateModeRenderer20 renderer;
     private Color [][] cellsColor ;
     private Vector3 around;
@@ -31,6 +36,9 @@ public class PlayState extends GameState{
 
     @Override
     public void init() {
+
+        world = new World(new Vector2(0, 0), true);
+
         camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.position.set(0, 0, 30f);
         camera.lookAt(20f, 20f, 0f);
@@ -44,6 +52,8 @@ public class PlayState extends GameState{
         landscape = new Land();
         landscape.generateNew();
         landscape.setScale(SCALE) ;
+
+        animalInstances = new AnimalInstance[] {new AnimalInstance(5, 5, 50, 1), new AnimalInstance(10, 5, 50, 1), new AnimalInstance(5, 10, 50, 1)};
 
         cellsColor = new Color[landscape.getDepth()][landscape.getWidth()] ;
         for( int i = 0 ; i < landscape.getDepth() ; ++i )
@@ -149,6 +159,14 @@ public class PlayState extends GameState{
                 v3[2] = (float) landscape.getCellHeight(i, j - 1);
                 drawTriangle(v1, v2, v3, cellsColor[i][j], cellsColor[i - 1][j - 1], cellsColor[i][j - 1]);
             }
+        renderer.end();
+        renderer.begin(camera.combined, GL20.GL_TRIANGLES);
+        for(int i = 0; i < animalInstances.length; i++){
+            for(int j = 0; j < 8; j++){
+                float triangle[][] = animalInstances[i].getVertice(j);
+                drawTriangle(triangle[0], triangle[1], triangle[2], Color.YELLOW, Color.YELLOW, Color.YELLOW);
+            }
+        }
         renderer.end();
     }
 
