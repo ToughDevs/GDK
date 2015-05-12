@@ -136,7 +136,7 @@ public class Land {
     private double COLD_CELLS_PERCENT_MAX = 0.25 ;
     private double[] BIOME_MUTATE_PROBABILITY = new double[] {0.8, -1, 0.05, 0.01} ;
     private int MAX_MUTATION_STEPS = 2 ;
-    private int BIOME_MUTATE_ITERATIONS_COUNT = 200 ;
+    private int BIOME_MUTATE_ITERATIONS_COUNT = 2000 ;
 
     public void generateNew() {
         LocalDateTime localDateTime = LocalDateTime.now() ;
@@ -216,7 +216,7 @@ public class Land {
                 mutationsCount[i][j] = 0 ;
         float[] BiomeMutationCandidates = new float[16] ;
         int dx[] = new int[]{-1, -1, -1,  0, 0, 0,  1, 1, 1},
-            dy[] = new int[]{-1,  0,  1, -1, 0, 1, -1, 0, 1} ;
+                dy[] = new int[]{-1,  0,  1, -1, 0, 1, -1, 0, 1} ;
         float weight ;
         for( int iteration = 0 ; iteration < BIOME_MUTATE_ITERATIONS_COUNT ; ++iteration ) {
             for (i = 0; i < LAND_W; ++i)
@@ -314,6 +314,28 @@ public class Land {
 
         // Fix water basins
         float waterNeighbours ;
+        /*double maxNeighbour ;
+        int bestNeighbour ;
+        for(i = 0 ; i < LAND_D ; ++i)
+            for(j = 0 ; j < LAND_W; ++j)
+                if( CellMap[i][j].cellHeight > Biome.biomeWater.scaleRateMin ) {
+                    for(k = 0 ; k < 16 ; ++k)
+                        BiomeMutationCandidates[k] = 0 ;
+                    for (k = 0; k < 4; ++k) {
+                        x = i + dx[k];
+                        y = j + dy[k];
+                        if (dx[k] == 0 || dy[k] == 0)
+                            weight = 1f;
+                        else
+                            weight = 0.5f;
+                        if (x >= 0 && y >= 0 && x < LAND_D && y < LAND_W)
+                            BiomeMutationCandidates[CellMap[x][y].biomeID] += weight;
+                    }
+                    BiomeMutationCandidates[Biome.BIOME_PLAINS] += 0.01 ;
+                    for(k = 0 ; k < 16; ++k)
+                        if( k != Biome.BIOME_WATER )
+                }*/
+
         for( int iteration = 0 ; iteration < BIOME_MUTATE_ITERATIONS_COUNT ; ++iteration ) {
             for (i = 0; i < LAND_W; ++i)
                 for (j = 0; j < LAND_D; ++j) {
@@ -366,23 +388,61 @@ public class Land {
         normalizeHeight(0, 0, LAND_W, LAND_D);
         //averageHeight(5);
 
+        double[][] heightCoefficientMap = new double[LAND_D][LAND_W] ;
+        for( i = 0 ; i < LAND_D ; ++i )
+            for( j = 0 ; j < LAND_W ; ++j )
+                heightCoefficientMap[i][j] = Biome.getBiomeById(CellMap[i][j].biomeID).scaleRateMin ;
+
+        double[][] averageHeightMap = new double[LAND_W][LAND_D];
+        int[][] averageHeightCellsCnt = new int[LAND_W][LAND_D];
+        int iterations = 30 ;
+        while( iterations-- > 0 ) {
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j) {
+                    averageHeightMap[i][j] = heightCoefficientMap[i][j];
+                    averageHeightCellsCnt[i][j] = 1 ;
+                    if (i > 0) {
+                        averageHeightMap[i][j] += heightCoefficientMap[i-1][j];
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                    if (j > 0) {
+                        averageHeightMap[i][j] += heightCoefficientMap[i][j-1];
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                    if (i < LAND_W-1) {
+                        averageHeightMap[i][j] += heightCoefficientMap[i+1][j];
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                    if (j < LAND_D-1) {
+                        averageHeightMap[i][j] += heightCoefficientMap[i][j+1];
+                        ++averageHeightCellsCnt[i][j] ;
+                    }
+                }
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j)
+                    averageHeightMap[i][j] /= averageHeightCellsCnt[i][j] ;
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j)
+                    heightCoefficientMap[i][j] = Math.max(0, averageHeightMap[i][j]);
+        }
+
         for (bi = 0; bi < BIOME_MAP_SIZE; ++bi)
             for (bj = 0; bj < BIOME_MAP_SIZE; ++bj) {
                 for (i = bi * BIOME_SIZE; i < (bi + 1) * BIOME_SIZE; ++i)
                     for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j) {
-                        CellMap[i][j].cellHeight *= mRandom(
-                                Biome.getBiomeById(CellMap[i][j].biomeID).scaleRateMin,
-                                Biome.getBiomeById(CellMap[i][j].biomeID).scaleRateMax
-                        );
+                        CellMap[i][j].cellHeight *= heightCoefficientMap[i][j] ;
                         CellMap[i][j].cellColor = new CellColor(
                                 Biome.getBiomeById(CellMap[i][j].biomeID).DEFAULT_COLOR
                         ) ;
                     }
             }
 
-        averageHeight(15); //NEED TO AVERAGE ONLY BETWEEN BIOMS
+        greedyDealWithHills(100, BIOME_SIZE/2, 4, 0.2) ;
+
+        averageHeight(15);
         averageColor(15);
-        applyRandomColorMask(0.2);
+        //applyHeightColorMask(10);
+        applyRandomColorMask(0.1f);
 
         System.out.println( localDateTime.until(LocalDateTime.now(), ChronoUnit.SECONDS) ) ;
     }
@@ -390,6 +450,34 @@ public class Land {
     /**
      * Accessory landscape functions
      */
+
+    private double HILL_MUTATION_PROBABILITY = 0.5 ;
+    public void greedyDealWithHills(int iterations, int regionRadius, int regionDecreaseRadius, double newScale) {
+        int i, j, i1, j1, count;
+        while( iterations-- > 0 ) {
+            for( i = 0 ; i < LAND_D ; ++i )
+                for( j = 0 ; j < LAND_W ; ++j )
+                    if( CellMap[i][j].biomeID == Biome.BIOME_HILLS && CellMap[i][j].cellHeight > Biome.biomeHills.scaleRateMin * 0.5 ) {
+                        count = 0;
+                        for (i1 = i - regionRadius; i1 <= i + regionRadius; ++i1)
+                            for (j1 = j - regionRadius; j1 <= j + regionRadius; ++j1)
+                                if (i1 < 0 || i1 >= LAND_D || j1 < 0 || j1 >= LAND_W)
+                                    ++count;
+                                else if (CellMap[i1][j1].cellHeight > Biome.biomeHills.scaleRateMin * 0.5)
+                                    ++count;
+                                else if (CellMap[i1][j1].cellHeight == 0 &&
+                                        CellMap[i1][j1].biomeID == Biome.BIOME_HILLS)
+                                    count -= 4 * regionRadius * regionRadius ;
+                        if (count > (regionRadius * regionRadius) / 4 && Math.random() <= HILL_MUTATION_PROBABILITY) {
+                            for( i1 = Math.max(i-regionDecreaseRadius, 0) ; i1 < Math.min(i+regionDecreaseRadius, LAND_D) ; ++i1 )
+                                for( j1 = Math.max(j-regionDecreaseRadius, 0); j1 < Math.min(j+regionDecreaseRadius, LAND_W) ; ++j1 )
+                                    if( Math.random() <= HILL_MUTATION_PROBABILITY )
+                                        CellMap[i1][j1].cellHeight = Math.random() * newScale ;
+                        }
+                    }
+        }
+    }
+
     public void normalizeHeight(int ws, int ds, int we, int de) {
         double minHeight = 0;
         for (int i = ws; i < we; ++i)
@@ -408,14 +496,45 @@ public class Land {
                 CellMap[i][j].cellHeight /= maxHeight;
     }
 
-    public void applyRandomColorMask(double strength) {
+    public void applyRandomColorMask(float strength) {
+        int r, g, b ; float s ;
         for(int i = 0 ; i < LAND_W ; ++i )
-            for( int j = 0 ; j < LAND_D ; ++j )
-                CellMap[i][j].cellColor = CellMap[i][j].cellColor.add(
-                        new CellColor(
-                                new Color((float)(Math.random()*strength), (float)(Math.random()*strength), (float)(Math.random()*strength))
-                        )
-                ) ;
+            for( int j = 0 ; j < LAND_D ; ++j ) {
+                r = CellMap[i][j].cellColor.getRed() ;
+                g = CellMap[i][j].cellColor.getGreen() ;
+                b = CellMap[i][j].cellColor.getBlue() ;
+                s = (float) ( -0.5 + Math.random() ) * strength ;
+                r = Math.min(255, Math.round(r / (1 - s))) ;
+                g = Math.min(255, Math.round(g / (1 - s)));
+                b = Math.min( 255, Math.round (b / (1-s)) ) ;
+                CellMap[i][j].cellColor = new CellColor(new Color(r, g, b)) ;
+//                CellMap[i][j].cellColor = CellMap[i][j].cellColor.add(
+//                        new CellColor(
+//                                new Color((float) (Math.random() * strength), (float) (Math.random() * strength), (float) (Math.random() * strength))
+//                        )
+//                );
+            }
+    }
+
+    public void applyHeightColorMask(float strength) {
+        int r, g, b;
+        float s;
+        for (int i = 0; i < LAND_W; ++i)
+            for (int j = 0; j < LAND_D; ++j) {
+                r = CellMap[i][j].cellColor.getRed();
+                g = CellMap[i][j].cellColor.getGreen();
+                b = CellMap[i][j].cellColor.getBlue();
+                s = (float) ((0.9 + Math.random() * 0.1) * (CellMap[i][j].cellHeight-0.15) * strength);
+                r = Math.max(Math.min(255, Math.round(r / (1 - s))), 0);
+                g = Math.max(Math.min(255, Math.round(g / (1 - s))), 0);
+                b = Math.max(Math.min(255, Math.round(b / (1 - s))), 0);
+                CellMap[i][j].cellColor = new CellColor(new Color(r, g, b));
+//                CellMap[i][j].cellColor = CellMap[i][j].cellColor.add(
+//                        new CellColor(
+//                                new Color((float) (Math.random() * strength), (float) (Math.random() * strength), (float) (Math.random() * strength))
+//                        )
+//                );
+            }
     }
 
     public void averageColor(int iterations) {
@@ -495,7 +614,7 @@ public class Land {
                     averageHeightMap[i][j] /= averageHeightCellsCnt[i][j] ;
             for (int i = 0; i < LAND_W; ++i)
                 for (int j = 0; j < LAND_D; ++j)
-                    CellMap[i][j].cellHeight = Math.max(0, CellMap[i][j].cellHeight * 0.5 + averageHeightMap[i][j] * 0.5);
+                    CellMap[i][j].cellHeight = Math.max(0, averageHeightMap[i][j]);
         }
     }
 

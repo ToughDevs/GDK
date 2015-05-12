@@ -14,8 +14,8 @@ public class Biome {
     public CellTemperature temperatureMedian ;
     public double fertilityMedian ;
     public double humidityMedian ;
-    public double medianCrop ;
-    public double maxCrop ;
+    public double virulenceMedian ;
+    public double vegetationMedian ;
 
     public static final int BIOME_WATER = 0 ;
     public static final int BIOME_DESERT = 1 ;

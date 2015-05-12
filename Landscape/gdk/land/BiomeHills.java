@@ -6,13 +6,13 @@ public class BiomeHills extends Biome {
     BiomeHills() {
         BIOME_ID = Biome.BIOME_HILLS ;
 
-        scaleRateMin = 0.8 ;
-        scaleRateMax = 0.9 ;
+        scaleRateMin = 0.3 ;
+        scaleRateMax = 0.5 ;
         temperatureMedian = new CellTemperature(20) ;
         fertilityMedian = 0.4 ;
         humidityMedian = 0.2 ;
-        medianCrop = 0.3 ;
-        maxCrop = 0.7 ;
+        virulenceMedian = 0.02 ;
+        vegetationMedian = 0.3 ;
         DEFAULT_COLOR = (new CellColor(Color.GREEN)).add(new CellColor(Color.LIGHT_GRAY));
     }
 
