@@ -6,19 +6,19 @@ public class BiomeDesert extends Biome {
     BiomeDesert() {
         BIOME_ID = Biome.BIOME_DESERT ;
 
-        scaleRateMin = 0.2 ;
+        scaleRateMin = 0.20 ;
         scaleRateMax = 0.25 ;
-        temperatureMedian = new LandTemperature(40) ;
+        temperatureMedian = new CellTemperature(40) ;
         fertilityMedian = 0.1 ;
         humidityMedian = 0.1 ;
-        medianCrop = 0.2 ;
-        maxCrop = 0.6 ;
+        virulenceMedian = 0.01 ;
+        vegetationMedian = 0.1 ;
+        DEFAULT_COLOR = (new CellColor(Color.WHITE)).add((new CellColor(Color.ORANGE)).add(new CellColor(Color.YELLOW)));
     }
 
     BiomeDesert( Biome biome ) {
         this();
         SUBSTANCE_TYPE = biome.SUBSTANCE_TYPE;
         COLD = biome.COLD;
-        DEFAULT_COLOR = new CellColor(Color.ORANGE);
     }
 }
