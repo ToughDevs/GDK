@@ -1,27 +1,41 @@
-package gdk.land;
+package land;
+
+import javafx.util.Pair;
 
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 
 public class Land {
-    public int BIOME_SIZE; // size of each biome
-    public int BIOME_MAP_SIZE; // size of biome map
-    private int LAND_W; // land width
-    private int LAND_D; // land depth
-    private double LAND_SCALE; // land height scale
-    public Biome[][] BiomeMap; // biome map
-    private LandCell[][] CellMap; // height map
+    public int BIOME_SIZE;
+    public int BIOME_MAP_SIZE;
+    private int LAND_W;
+    private int LAND_D;
+    private double LAND_SCALE;
+    private LandCell[][] CellMap;
 
     public Land() {
-        BIOME_SIZE = 16;
-        BIOME_MAP_SIZE = 4;
+        BIOME_SIZE = 64;
+        BIOME_MAP_SIZE = 8;
         LAND_W = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_D = BIOME_SIZE * BIOME_MAP_SIZE;
         LAND_SCALE = 1;
-        BiomeMap = new Biome[BIOME_MAP_SIZE][BIOME_MAP_SIZE] ;
-        for (int i = 0; i < BIOME_MAP_SIZE; ++i)
-            for (int j = 0; j < BIOME_MAP_SIZE; ++j)
-                BiomeMap[i][j] = new Biome();
+        CellMap = new LandCell[LAND_W][LAND_D];
+        for (int i = 0; i < LAND_W; ++i)
+            for (int j = 0; j < LAND_D; ++j)
+                CellMap[i][j] = new LandCell();
+    }
+
+    public Land(int BIOME_SIZE, int BIOME_MAP_SIZE) {
+        this.BIOME_SIZE = BIOME_SIZE ;
+        this.BIOME_MAP_SIZE = BIOME_MAP_SIZE ;
+        LAND_W = BIOME_SIZE * BIOME_MAP_SIZE;
+        LAND_D = BIOME_SIZE * BIOME_MAP_SIZE;
+        LAND_SCALE = 1;
         CellMap = new LandCell[LAND_W][LAND_D];
         for (int i = 0; i < LAND_W; ++i)
             for (int j = 0; j < LAND_D; ++j)
@@ -61,25 +75,83 @@ public class Land {
         return CellMap[x][y].cellHeight * LAND_SCALE ;
     }
 
+    public CellTemperature getCellTemperature(int x, int y) {
+        return CellMap[x][y].cellTemperature ;
+    }
+
+    public void setCellFertility(int x, int y, double f) {
+        CellMap[x][y].fertility = f ;
+    }
+
+    public double getCellFertility(int x, int y) {
+        return CellMap[x][y].fertility ;
+    }
+
+    public double getCellHumidity(int x, int y) {
+        return CellMap[x][y].humidity ;
+    }
+
+    public void setCellHumidity(int x, int y, double h) {
+        CellMap[x][y].humidity = h ;
+    }
+
+    public double getCellVirulence(int x, int y) {
+        return CellMap[x][y].virulence ;
+    }
+
+    public void setCellVirulence(int x, int y, double v) {
+        CellMap[x][y].virulence = v ;
+    }
+
+    public double getCellFreshMeat(int x, int y) {
+        return CellMap[x][y].freshMeat ;
+    }
+
+    public void setCellFreshMeat(int x, int y, double f) {
+        CellMap[x][y].freshMeat = f ;
+    }
+
+    public double getCellRottenMeat(int x, int y) {
+        return CellMap[x][y].rottenMeat ;
+    }
+
+    public void setCellRottenMeat(int x, int y, double r) {
+        CellMap[x][y].rottenMeat = r ;
+    }
+
+    public Biome getCellBiomeType(int x, int y) {
+        return Biome.getBiomeById(CellMap[x][y].biomeID) ;
+    }
+
     public CellColor getCellColor(int x, int y) {
         return CellMap[x][y].cellColor ;
     }
 
-    public void generateNewOld() {
-        diamondSquareGen(0, 0, getWidth(), getDepth());
+    public void setBiomeMutationIterations( int a ) {
+        BIOME_MUTATE_ITERATIONS_COUNT = a ;
     }
 
-    private double WATER_CELLS_PERCENT = 0.25 ;
+    private double WATER_CELLS_PERCENT = 0.15 ;
     private double COLD_CELLS_PERCENT_MIN = 0.15 ;
     private double COLD_CELLS_PERCENT_MAX = 0.25 ;
+    private double[] BIOME_MUTATE_PROBABILITY = new double[] {0.8, -1, 0.05, 0.01} ;
+    private int MAX_MUTATION_STEPS = 2 ;
+    private int BIOME_MUTATE_ITERATIONS_COUNT = 200 ;
 
     public void generateNew() {
+        LocalDateTime localDateTime = LocalDateTime.now() ;
+
         int water_cells = (int) (WATER_CELLS_PERCENT * BIOME_MAP_SIZE * BIOME_MAP_SIZE);
         int cold_cells = (int) (mRandom(COLD_CELLS_PERCENT_MIN, COLD_CELLS_PERCENT_MAX) * BIOME_MAP_SIZE * BIOME_MAP_SIZE);
 
         Random random = new Random();
 
-        int i, j, b, all[];
+        int i, j, k, x, y, b, all[];
+        Biome[][] BiomeMap;
+        BiomeMap = new Biome[BIOME_MAP_SIZE][BIOME_MAP_SIZE] ;
+        for (i = 0; i < BIOME_MAP_SIZE; ++i)
+            for (j = 0; j < BIOME_MAP_SIZE; ++j)
+                BiomeMap[i][j] = new Biome();
 
         all = new int[BIOME_MAP_SIZE * BIOME_MAP_SIZE];
         for (i = 0; i < BIOME_MAP_SIZE * BIOME_MAP_SIZE; ++i)
@@ -127,24 +199,192 @@ public class Land {
                 }
                 else {
                     BiomeMap[i][j] = new BiomeWater(BiomeMap[i][j]);
+                };
+
+        int bi, bj;
+        for (bi = 0; bi < BIOME_MAP_SIZE; ++bi)
+            for (bj = 0; bj < BIOME_MAP_SIZE; ++bj)
+                for (i = bi * BIOME_SIZE; i < (bi + 1) * BIOME_SIZE; ++i)
+                    for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j)
+                        CellMap[i][j].biomeID = BiomeMap[bi][bj].BIOME_ID ;
+
+        // Biome mutations
+        int[][] BiomeNewCellMap = new int[LAND_D][LAND_W] ;
+        int[][] mutationsCount = new int[LAND_D][LAND_W] ;
+        for (i = 0; i < LAND_W; ++i)
+            for (j = 0; j < LAND_D; ++j)
+                mutationsCount[i][j] = 0 ;
+        float[] BiomeMutationCandidates = new float[16] ;
+        int dx[] = new int[]{-1, -1, -1,  0, 0, 0,  1, 1, 1},
+            dy[] = new int[]{-1,  0,  1, -1, 0, 1, -1, 0, 1} ;
+        float weight ;
+        for( int iteration = 0 ; iteration < BIOME_MUTATE_ITERATIONS_COUNT ; ++iteration ) {
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j) {
+                    BiomeNewCellMap[i][j] = CellMap[i][j].biomeID;
+                    if ( mutationsCount[i][j] < MAX_MUTATION_STEPS && mRandom(0f, 1f) <= BIOME_MUTATE_PROBABILITY[mutationsCount[i][j]]) {
+                        for (k = 0; k < 16; ++k)
+                            BiomeMutationCandidates[k] = 0;
+                        for (k = 0; k < 9; ++k) {
+                            x = i + dx[k];
+                            y = j + dy[k];
+                            if (dx[k] == 0 || dy[k] == 0)
+                                weight = 1f;
+                            else
+                                weight = 0.5f;
+                            if (x >= 0 && y >= 0 && x < LAND_W && y < LAND_D)
+                                BiomeMutationCandidates[CellMap[x][y].biomeID] += weight;
+                        }
+                        ArrayList<Pair<Float, Integer>> mutationCandidates = new ArrayList<Pair<Float, Integer>>();
+                        for (k = 0; k < 16; ++k)
+                            if (k != CellMap[i][j].biomeID && BiomeMutationCandidates[k] > 0)
+                                mutationCandidates.add(new Pair<Float, Integer>(BiomeMutationCandidates[k], k));
+                        if (mutationCandidates.size() == 0)
+                            continue;
+                        else {
+                            Collections.sort(mutationCandidates, new Comparator<Pair<Float, Integer>>() {
+                                @Override
+                                public int compare(Pair<Float, Integer> o1, Pair<Float, Integer> o2) {
+                                    if (o1.getKey() > o2.getKey())
+                                        return -1;
+                                    else if (o1.getKey().equals(o2.getKey()))
+                                        return 0;
+                                    else
+                                        return 1;
+                                }
+                            });
+                            if (mutationCandidates.get(0).getKey() < 2.0f)
+                                continue ;
+                            mutationsCount[i][j]++ ;
+                            BiomeNewCellMap[i][j] = mutationCandidates.get(0).getValue();
+                        }
+                    }
                 }
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j)
+                    CellMap[i][j].biomeID = BiomeNewCellMap[i][j] ;
+        }
+
+        for( int iteration = 0 ; iteration < BIOME_MUTATE_ITERATIONS_COUNT ; ++iteration ) {
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j) {
+                    BiomeNewCellMap[i][j] = CellMap[i][j].biomeID;
+                    if ( mRandom(0f, 1f) <= BIOME_MUTATE_PROBABILITY[0]) {
+                        for (k = 0; k < 16; ++k)
+                            BiomeMutationCandidates[k] = 0;
+                        for (k = 0; k < 9; ++k) {
+                            x = i + dx[k];
+                            y = j + dy[k];
+                            if (dx[k] == 0 || dy[k] == 0)
+                                weight = 1f;
+                            else
+                                weight = 0.5f;
+                            if (x >= 0 && y >= 0 && x < LAND_W && y < LAND_D)
+                                BiomeMutationCandidates[CellMap[x][y].biomeID] += weight;
+                        }
+                        ArrayList<Pair<Float, Integer>> mutationCandidates = new ArrayList<Pair<Float, Integer>>();
+                        for (k = 0; k < 16; ++k)
+                            if (k != CellMap[i][j].biomeID && BiomeMutationCandidates[k] > 0)
+                                mutationCandidates.add(new Pair<Float, Integer>(BiomeMutationCandidates[k], k));
+                        if (mutationCandidates.size() == 0)
+                            continue;
+                        else {
+                            Collections.sort(mutationCandidates, new Comparator<Pair<Float, Integer>>() {
+                                @Override
+                                public int compare(Pair<Float, Integer> o1, Pair<Float, Integer> o2) {
+                                    if (o1.getKey() > o2.getKey())
+                                        return -1;
+                                    else if (o1.getKey().equals(o2.getKey()))
+                                        return 0;
+                                    else
+                                        return 1;
+                                }
+                            });
+                            if (mutationCandidates.get(0).getKey() < 2.0f)
+                                continue ;
+                            mutationsCount[i][j]++ ;
+                            BiomeNewCellMap[i][j] = mutationCandidates.get(0).getValue();
+                        }
+                    }
+                }
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j)
+                    CellMap[i][j].biomeID = BiomeNewCellMap[i][j] ;
+        }
+
+        // Fix water basins
+        float waterNeighbours ;
+        for( int iteration = 0 ; iteration < BIOME_MUTATE_ITERATIONS_COUNT ; ++iteration ) {
+            for (i = 0; i < LAND_W; ++i)
+                for (j = 0; j < LAND_D; ++j) {
+                    BiomeNewCellMap[i][j] = CellMap[i][j].biomeID;
+                    if (BiomeNewCellMap[i][j] == Biome.BIOME_WATER) {
+                        waterNeighbours = 0;
+                        for (k = 0; k < 4; ++k) {
+                            x = i + dx[k];
+                            y = j + dy[k];
+                            if (dx[k] == 0 || dy[k] == 0)
+                                weight = 1f;
+                            else
+                                weight = 0.5f;
+                            if (x >= 0 && y >= 0 && x < LAND_D && y < LAND_W) {
+                                if (CellMap[x][y].biomeID == Biome.BIOME_WATER)
+                                    waterNeighbours += weight;
+                            } else
+                                waterNeighbours += weight;
+                        }
+                        if (waterNeighbours < 2.5f) {
+                            for (k = 0; k < 16; ++k)
+                                BiomeMutationCandidates[k] = 0;
+                            for (k = 0; k < 4; ++k) {
+                                x = i + dx[k];
+                                y = j + dy[k];
+                                if (dx[k] == 0 || dy[k] == 0)
+                                    weight = 1f;
+                                else
+                                    weight = 0.5f;
+                                if (x >= 0 && y >= 0 && x < LAND_D && y < LAND_W)
+                                    BiomeMutationCandidates[CellMap[x][y].biomeID] += weight;
+                            }
+                            ArrayList<Pair<Float, Integer>> mutationCandidates = new ArrayList<Pair<Float, Integer>>();
+                            for (k = 0; k < 16; ++k)
+                                if (k != CellMap[i][j].biomeID && BiomeMutationCandidates[k] > 0)
+                                    mutationCandidates.add(new Pair<Float, Integer>(BiomeMutationCandidates[k], k));
+                            if (mutationCandidates.size() == 0)
+                                continue;
+                            else if (mutationCandidates.size() == 1)
+                                BiomeNewCellMap[i][j] = mutationCandidates.get(0).getValue();
+                        }
+                    }
+                    for (i = 0; i < LAND_W; ++i)
+                        for (j = 0; j < LAND_D; ++j)
+                            CellMap[i][j].biomeID = BiomeNewCellMap[i][j];
+                }
+        }
 
         diamondSquareGen(0, 0, LAND_W, LAND_D);
         normalizeHeight(0, 0, LAND_W, LAND_D);
+        //averageHeight(5);
 
-        int bi, bj;
         for (bi = 0; bi < BIOME_MAP_SIZE; ++bi)
             for (bj = 0; bj < BIOME_MAP_SIZE; ++bj) {
                 for (i = bi * BIOME_SIZE; i < (bi + 1) * BIOME_SIZE; ++i)
                     for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j) {
-                        CellMap[i][j].cellHeight *= mRandom(BiomeMap[bi][bj].scaleRateMin, BiomeMap[bi][bj].scaleRateMax);
-                        CellMap[i][j].cellColor = new CellColor(BiomeMap[bi][bj].DEFAULT_COLOR) ;
+                        CellMap[i][j].cellHeight *= mRandom(
+                                Biome.getBiomeById(CellMap[i][j].biomeID).scaleRateMin,
+                                Biome.getBiomeById(CellMap[i][j].biomeID).scaleRateMax
+                        );
+                        CellMap[i][j].cellColor = new CellColor(
+                                Biome.getBiomeById(CellMap[i][j].biomeID).DEFAULT_COLOR
+                        ) ;
                     }
             }
 
-        averageHeight(5);
-        averageColor(50) ;
-        applyRandomColorMask();
+        averageHeight(15); //NEED TO AVERAGE ONLY BETWEEN BIOMS
+        averageColor(15);
+        applyRandomColorMask(0.2);
+
+        System.out.println( localDateTime.until(LocalDateTime.now(), ChronoUnit.SECONDS) ) ;
     }
 
     /**
@@ -168,12 +408,12 @@ public class Land {
                 CellMap[i][j].cellHeight /= maxHeight;
     }
 
-    public void applyRandomColorMask() {
+    public void applyRandomColorMask(double strength) {
         for(int i = 0 ; i < LAND_W ; ++i )
             for( int j = 0 ; j < LAND_D ; ++j )
                 CellMap[i][j].cellColor = CellMap[i][j].cellColor.add(
                         new CellColor(
-                                new Color((float)(Math.random()*0.2), (float)(Math.random()*0.2), (float)(Math.random()*0.2))
+                                new Color((float)(Math.random()*strength), (float)(Math.random()*strength), (float)(Math.random()*strength))
                         )
                 ) ;
     }
