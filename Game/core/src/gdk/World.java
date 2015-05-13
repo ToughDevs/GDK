@@ -34,12 +34,12 @@ public class World {
             if (animals.get(i).coords.y > mapSize - 1) {
                 animals.get(i).coords.y = mapSize - 1;
                 animals.get(i).speed.y *= -1;
-            }    
+            }
             if (random.nextFloat() < 0.1) {
                 animals.get(i).speed.x = random.nextInt(3) - 1;
                 animals.get(i).speed.y = random.nextInt(3) - 1;
             }
-        }   
+        }
     } 
 
     public void generateNew(int biomesCount, int biomeSize, int animalsCount) {
@@ -48,6 +48,8 @@ public class World {
         landscape = new Land(biomeSize, biomesCount);
         landscape.setBiomeMutationIterations(100);
         landscape.generateNew();
+
+        mapSize = biomeSize * biomesCount ;
 
         animals = new ArrayList<Animal>();
         for (int i = 0; i < animalsCount; i++) {

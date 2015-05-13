@@ -314,11 +314,13 @@ public class Land {
 
         // Fix water basins
         float waterNeighbours ;
-        /*double maxNeighbour ;
+        double maxNeighbour ;
         int bestNeighbour ;
         for(i = 0 ; i < LAND_D ; ++i)
             for(j = 0 ; j < LAND_W; ++j)
-                if( CellMap[i][j].cellHeight > Biome.biomeWater.scaleRateMin ) {
+                if( CellMap[i][j].biomeID == Biome.BIOME_WATER &&
+                        CellMap[i][j].cellHeight > Biome.biomeWater.scaleRateMin ) {
+                    System.out.println("high water") ;
                     for(k = 0 ; k < 16 ; ++k)
                         BiomeMutationCandidates[k] = 0 ;
                     for (k = 0; k < 4; ++k) {
@@ -332,9 +334,15 @@ public class Land {
                             BiomeMutationCandidates[CellMap[x][y].biomeID] += weight;
                     }
                     BiomeMutationCandidates[Biome.BIOME_PLAINS] += 0.01 ;
+                    maxNeighbour = 0 ; bestNeighbour = 0 ;
                     for(k = 0 ; k < 16; ++k)
-                        if( k != Biome.BIOME_WATER )
-                }*/
+                        if( k != Biome.BIOME_WATER &&
+                                BiomeMutationCandidates[k] > maxNeighbour ) {
+                            maxNeighbour = BiomeMutationCandidates[k] ;
+                            bestNeighbour = k ;
+                        }
+                    CellMap[i][j].biomeID = bestNeighbour ;
+                }
 
         for( int iteration = 0 ; iteration < BIOME_MUTATE_ITERATIONS_COUNT ; ++iteration ) {
             for (i = 0; i < LAND_W; ++i)
@@ -439,7 +447,18 @@ public class Land {
 
         greedyDealWithHills(100, BIOME_SIZE/2, 4, 0.2) ;
 
-        averageHeight(15);
+        averageHeight(10);
+
+        for (i = 0; i < LAND_W; ++i)
+            for (j = 0; j < LAND_D; ++j)
+                if( CellMap[i][j].biomeID == Biome.BIOME_WATER &&
+                        CellMap[i][j].cellHeight > Biome.biomeWater.scaleRateMin ) {
+                    System.out.println("High water debug") ;
+                    CellMap[i][j].cellHeight *= Biome.biomeWater.scaleRateMin;
+                }
+
+        averageHeight(10);
+
         averageColor(15);
         //applyHeightColorMask(10);
         applyRandomColorMask(0.1f);

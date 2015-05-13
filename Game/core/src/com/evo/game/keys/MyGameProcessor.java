@@ -99,7 +99,7 @@ public class MyGameProcessor extends InputAdapter {
 
     @Override
     public boolean scrolled(int amount){
-        gsm.scroll(amount);
+        gsm.scroll(amount*10);
         return true;
     }
 

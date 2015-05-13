@@ -45,7 +45,7 @@ public class PlayState extends GameState{
     @Override
     public void init() {
         world = new World();
-        world.generateNew(8, 32, 20);
+        world.generateNew(8, 32, 1000);
         world.landscape.setScale(SCALE);
 
         camera = new PerspectiveCamera(45, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -93,6 +93,7 @@ public class PlayState extends GameState{
         front = front.crs(around);
         handleInput();
         camera.update();
+        world.update() ;
     }
 
     @Override
