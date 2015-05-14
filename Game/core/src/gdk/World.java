@@ -20,7 +20,7 @@ public class World {
     LocalDateTime lastUpdate ;
 
     public void update() {
-        if( lastUpdate.until(LocalDateTime.now(), ChronoUnit.MILLIS) > 20 ) {
+        if( lastUpdate.until(LocalDateTime.now(), ChronoUnit.MILLIS) > 40 ) {
             lastUpdate = LocalDateTime.now() ;
             updateAnimals1();
             updateLandscape();
@@ -48,19 +48,19 @@ public class World {
             my = 0;
             px = animal.coords.x;
             py = animal.coords.y;
-                    
+
             for (Animal secAnimal : animals) {
                 if (animal != secAnimal) {
                     dx = secAnimal.coords.x - px;
                     dy = secAnimal.coords.y - py;
-                    dr2 = dx*dx +dy*dy;
+                    dr2 = dx*dx + dy*dy;
                     if (dr2 == 0.0) {
                         dx = 0.01;
                         dy = 0.01;
                     }
                     if (animal.vision * animal.vision >= dr2) {
                         switch (secAnimal.foodType) {
-                            case MEAT: {
+                            case MEAT:
                                 switch (animal.foodType) {
                                     case GRASS: {
                                         double fear = animal.fearness / dr2;
@@ -72,10 +72,10 @@ public class World {
                                         double diff = animal.diffusion / dr2;
                                         chToRun += diff;
                                         mx -= diff * dx;
-                                        my -= diff * dy;        
+                                        my -= diff * dy;
                                     } break;
                                 }
-                            } break;
+                                break;
                             case GRASS: {
                                 switch (animal.foodType) {
                                     case GRASS: {
@@ -105,53 +105,22 @@ public class World {
                 if (nx < 0) {
                     nx = 0;
                 }
-                if (nx >= mapSize) {
+                if (nx >= mapSize-1) {
                     nx = mapSize-1;
                 }
                 if (ny < 0) {
                     ny = 0;
                 }
-                if (ny >= mapSize) {
+                if (ny >= mapSize-1) {
                     ny = mapSize - 1;
                 }
                 double nr2 = Math.sqrt((nx-px)*(nx-px) + (ny-py)* (ny-py));
                 animal.energy -= nr2*animal.moveEnergy;
+                animal.coords.x = (float)nx;
+                animal.coords.y = (float)ny;
             } else {
-                
-            }
-/*
-            d = Math.sqrt( animal.speed.x * animal.speed.x + animal.speed.y * animal.speed.y ) ;
-            if( d * animal.moveEnergy <= animal.power &&
-                    animal.energy > animal.entityEnergy ) {
-                animal.moveEnergy -= animal.power ;
-                if (animal.coords.x < 0) {
-                    animal.coords.x = 0;
-                    animal.speed.x *= -1;
-                }
-                if (animal.coords.x >= mapSize) {
-                    animal.coords.x = mapSize - 1;
-                    animal.speed.x *= -1;
-                }
-                if (animal.coords.y < 0) {
-                    animal.coords.y = 0;
-                    animal.speed.y *= -1;
-                }
-                if (animal.coords.y >= mapSize) {
-                    animal.coords.y = mapSize - 1;
-                    animal.speed.y *= -1;
-                }
-                if (random.nextFloat() < 0.1) {
-                    animal.speed.x = 1 - random.nextFloat();
-                    animal.speed.y = 1 - random.nextFloat();
-                }
-            }
-            else {
-                animal.speed = new Point2D.Float(0, 0);
-                if (landscape.getCellVegetation((int) animal.coords.x, (int) animal.coords.y) > 0) {
 
-                }
             }
-            */
         }
     }
 
@@ -186,9 +155,9 @@ public class World {
                 tp = Animal.AnimalStandartType.TIGER;
             }
             animals.add(new Animal(
-                    new Point2D.Float(0, 0),
-                    new Point2D.Float(landscape.getDepth()-1, landscape.getWidth()-1),
-                    tp)
+                            new Point2D.Float(0, 0),
+                            new Point2D.Float(landscape.getDepth()-1, landscape.getWidth()-1),
+                            tp)
             );
         }
 
