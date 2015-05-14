@@ -39,6 +39,14 @@ public class Biome {
         COLD = false ;
     }
 
+    public void applyBiomeToCell(LandCell c) {
+        c.cellColor = DEFAULT_COLOR ;
+        c.cellTemperature = temperatureMedian ;
+        c.fertility = fertilityMedian ;
+        c.humidity = humidityMedian ;
+        c.virulence = virulenceMedian ;
+    }
+
     public static Biome getBiomeById( int ID ) {
         if( ID == BIOME_WATER )
             return biomeWater ;

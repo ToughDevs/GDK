@@ -1,8 +1,8 @@
-package com.landscape.game.desktop;
+package com.evo.game.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.landscape.game.Game;
+import com.evo.game.Game;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {

@@ -1,5 +1,6 @@
 package gdk.land;
 
+import javafx.scene.control.Cell;
 import javafx.util.Pair;
 
 import java.awt.*;
@@ -101,6 +102,14 @@ public class Land {
 
     public void setCellVirulence(int x, int y, double v) {
         CellMap[x][y].virulence = v ;
+    }
+
+    public double getCellVegetation(int x, int y) {
+        return CellMap[x][y].vegetation ;
+    }
+
+    public void setCellVegetation(int x, int y, double v) {
+        CellMap[x][y].vegetation = v ;
     }
 
     public double getCellFreshMeat(int x, int y) {
@@ -434,15 +443,11 @@ public class Land {
                     heightCoefficientMap[i][j] = Math.max(0, averageHeightMap[i][j]);
         }
 
-        for (bi = 0; bi < BIOME_MAP_SIZE; ++bi)
-            for (bj = 0; bj < BIOME_MAP_SIZE; ++bj) {
-                for (i = bi * BIOME_SIZE; i < (bi + 1) * BIOME_SIZE; ++i)
-                    for (j = bj * BIOME_SIZE; j < (bj + 1) * BIOME_SIZE; ++j) {
-                        CellMap[i][j].cellHeight *= heightCoefficientMap[i][j] ;
-                        CellMap[i][j].cellColor = new CellColor(
-                                Biome.getBiomeById(CellMap[i][j].biomeID).DEFAULT_COLOR
-                        ) ;
-                    }
+        for( i = 0 ; i < LAND_D ; ++i )
+            for( j = 0 ; j < LAND_W ; ++j ) {
+                CellMap[i][j].cellHeight *= heightCoefficientMap[i][j];
+                Biome.getBiomeById(CellMap[i][j].biomeID)
+                        .applyBiomeToCell(CellMap[i][j]);
             }
 
         greedyDealWithHills(100, BIOME_SIZE/2, 4, 0.2) ;
