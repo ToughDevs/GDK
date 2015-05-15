@@ -102,14 +102,14 @@ public class World {
                 double mr = Math.sqrt(mx*mx+my*my);
                 double nx = px + mx/mr*animal.maxSpeed;
                 double ny = py + my/mr*animal.maxSpeed;
-                if (nx < 0) {
-                    nx = 0;
+                if (nx < 1) {
+                    nx = 1;
                 }
                 if (nx >= mapSize-1) {
                     nx = mapSize-1;
                 }
-                if (ny < 0) {
-                    ny = 0;
+                if (ny < 1) {
+                    ny = 1;
                 }
                 if (ny >= mapSize-1) {
                     ny = mapSize - 1;
@@ -119,7 +119,22 @@ public class World {
                 animal.coords.x = (float)nx;
                 animal.coords.y = (float)ny;
             } else {
-
+                double nx = px + (0.5 - Math.random() ) * Math.random() * 2;
+                double ny = py + (0.5 - Math.random() ) * Math.random() * 2;
+                if (nx < 1) {
+                    nx = 1;
+                }
+                if (nx >= mapSize-1) {
+                    nx = mapSize-1;
+                }
+                if (ny < 1) {
+                    ny = 1;
+                }
+                if (ny >= mapSize-1) {
+                    ny = mapSize - 1;
+                }
+                animal.coords.x = (float)nx;
+                animal.coords.y = (float)ny;
             }
         }
     }

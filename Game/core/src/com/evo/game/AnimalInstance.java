@@ -5,12 +5,14 @@ package com.evo.game;
  */
 public class AnimalInstance {
 
+    final public int quality = 8;
+
     private float x;
     private float y;
     private float z;
     private float r;
 
-    private float vertices[][][];
+    private float vertices[][][][];
 
     public AnimalInstance(float x, float y, float z, float r){
         this.x = x;
@@ -23,123 +25,25 @@ public class AnimalInstance {
 
     private void buildVertices(){
 
-        vertices = new float[8][3][3];
+        vertices = new float[2][quality][quality][3];
 
-        int k = 0;
+        float k = r / (quality / 2);
 
-        vertices[k][0][0] = x - r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
+        for(int i = 0; i < quality; i++){
+            for(int j = 0; j < quality; j++){
+                vertices[0][i][j][0] = vertices[1][i][j][0] = x + (i - quality / 2) * k;
+                vertices[0][i][j][1] = vertices[1][i][j][1] = y + (j - quality / 2) * k;
+                vertices[0][i][j][2] = (float)Math.sqrt(r * r - (vertices[0][i][j][0] - x) * (vertices[0][i][j][0] - x)
+                        - (vertices[0][i][j][1] - y) * (vertices[0][i][j][1] - y)) + z;
 
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z + r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y - r;
-        vertices[k][2][2] = z;
-
-        k++;
-
-        vertices[k][0][0] = x - r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
-
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z + r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y + r;
-        vertices[k][2][2] = z;
-
-        k++;
-
-        vertices[k][0][0] = x - r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
-
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z - r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y - r;
-        vertices[k][2][2] = z;
-
-        k++;
-
-        vertices[k][0][0] = x - r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
-
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z - r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y + r;
-        vertices[k][2][2] = z;
-
-        k++;
-
-        vertices[k][0][0] = x + r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
-
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z + r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y - r;
-        vertices[k][2][2] = z;
-
-        k++;
-
-        vertices[k][0][0] = x + r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
-
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z + r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y + r;
-        vertices[k][2][2] = z;
-
-        k++;
-
-        vertices[k][0][0] = x + r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
-
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z - r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y - r;
-        vertices[k][2][2] = z;
-
-        k++;
-
-        vertices[k][0][0] = x + r;
-        vertices[k][0][1] = y;
-        vertices[k][0][2] = z;
-
-        vertices[k][1][0] = x;
-        vertices[k][1][1] = y;
-        vertices[k][1][2] = z - r;
-
-        vertices[k][2][0] = x;
-        vertices[k][2][1] = y + r;
-        vertices[k][2][2] = z;
+                vertices[1][i][j][2] = - (float)Math.sqrt(r * r - (vertices[0][i][j][0] - x) * (vertices[0][i][j][0] - x)
+                        - (vertices[0][i][j][1] - y) * (vertices[0][i][j][1] - y)) + z;
+            }
+        }
     }
 
-    public float[][] getVertice(int k){
-        return vertices[k];
+    public float[] getVertice(int side, int i, int j){
+        return vertices[side][i][j];
     }
 
 }
