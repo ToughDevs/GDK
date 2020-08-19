@@ -1,7 +1,6 @@
 package gdk;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 public class TestLaunch extends JFrame{
 	public TestLaunch() {

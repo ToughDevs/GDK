@@ -7,15 +7,14 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.evo.game.AnimalInstance;
 import com.evo.game.Game;
 import com.evo.game.Loading;
 import com.evo.game.TestShader;
 import com.evo.game.keys.GameKeys;
-import gdk.land.* ;
 import gdk.*;
+import gdk.land.*;
 
 public class PlayState extends GameState{
 

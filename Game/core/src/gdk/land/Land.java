@@ -1,6 +1,5 @@
 package gdk.land;
 
-import javafx.scene.control.Cell;
 import javafx.util.Pair;
 
 import java.awt.*;

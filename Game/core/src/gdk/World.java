@@ -1,16 +1,13 @@
 package gdk;
 
-import gdk.land.Land;
 import gdk.animal.Animal;
+import gdk.land.Land;
 
 import java.awt.geom.Point2D;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Random;
 import java.util.ArrayList;
-
-import java.awt.Color;
-import java.awt.Point;
+import java.util.Random;
 
 public class World {
     public ArrayList<Animal> animals;
